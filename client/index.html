@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superhero Info</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="scripts.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h4 class="header-text">Welcome to Lab 3 of WebTech! --Made By Jmorale6</h4>
+        <a href="#heroID"><button>Begin</button></a>
+
+
+    </div>
+    
+    <div class="heroBox" id="taskOneTwo">
+    <div class="heroID-searchBox" id="heroID">
+        <h1>Superhero Information</h1>
+        <label for="heroId">Enter Superhero ID: </label>
+        <input type="number" id="heroId">
+        <button onclick="fetchSuperheroInfo()">Search</button>
+        <button id="powers-btn" onclick="fetchSuperheroPowers()" disabled>View Powers</button>
+        <button id="clear-btn" onclick="clearBox()" disabled>Clear Search</button>
+    </div>
+    </div>
+    <div id="bannerOne">
+        <a href="#taskthree"><button class="viewTaskThree">View Task 3</button></a>
+    </div>
+
+    <div class="publishersBox" id="taskthree">
+        <button onclick="fetchPublishers()" class="publisher-btn">View Available Publishers</button>
+        </div>
+    
+
+</body>
+</html>
