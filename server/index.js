@@ -16,18 +16,23 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client')));
 
 
-app.get('/api/superhero/:id', (req, res) => {//gets all  the fields based on id BUT I will make it by name
+app.get('/api/superhero/:id', (req, res) => {
+    const heroID = req.params.id;
+
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
         if (err) return res.status(500).json({ error: 'Failed to read data' });
-        
-        const superheroes = JSON.parse(data);
-        const superhero = superheroes.find(hero => hero.id.toString() === req.params.id);
-        
-        if (!superhero) return res.status(404).json({ error: 'Superhero not found' });
 
-        res.json(superhero);
+        const superheroes = JSON.parse(data);
+        const hero = superheroes.find(h => h.id === parseInt(heroID));
+
+        if (hero) {
+            res.json(hero);
+        } else {
+            res.status(404).json({ error: 'Hero not found' });
+        }
     });
 });
+
 
 app.get('/api/powers/:id', (req, res) => {
     fs.readFile('superhero_info.json', 'utf8', (err, heroData) => {
@@ -61,6 +66,32 @@ app.get('/api/publishers', (req, res) => {
         const publishers = [...new Set(superheroes.map(hero => hero.Publisher))];
 
         res.json({ publishers });
+    });
+});
+
+app.get('/api/search', (req, res) => {
+    const { gender, publisher, alignment, n } = req.query;//query parameters
+
+    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Failed to read data' });
+
+        let superheroes = JSON.parse(data);
+
+        if (gender) {
+            superheroes = superheroes.filter(hero => hero.Gender && hero.Gender.toLowerCase() === gender.toLowerCase());
+        }
+
+        if (publisher) {
+            superheroes = superheroes.filter(hero => hero.Publisher && hero.Publisher.toLowerCase() === publisher.toLowerCase());
+        }
+
+        if (alignment) {
+            superheroes = superheroes.filter(hero => hero.Alignment && hero.Alignment.toLowerCase() === alignment.toLowerCase());
+        }
+
+        const limitedSuperheroes = n ? superheroes.slice(0, parseInt(n)) : superheroes;
+
+        res.json({ ids: limitedSuperheroes.map(hero => hero.id) });
     });
 });
 
