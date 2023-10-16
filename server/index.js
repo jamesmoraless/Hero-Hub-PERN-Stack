@@ -2,12 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const pool = './db.js';
+const queries = require('./queries');
 
 const app = express();
 const PORT = 5000;
-const DATA_PATH = path.join(__dirname, 'superhero_info.json');
-const POWERS_PATH = path.join(__dirname, 'superhero_powers.json');
-
 
 // Use body-parser middleware to handle JSON requests
 app.use(bodyParser.json());
@@ -16,7 +15,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../client')));
 
 
-app.get('/api/superhero/:id', (req, res) => {
+app.get('/api/superhero/:id', (req, res) => {//this will be used to search by name
     const heroID = req.params.id;
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {

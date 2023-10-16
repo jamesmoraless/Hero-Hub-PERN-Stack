@@ -90,7 +90,7 @@ function displaySuperHero(rslt){
 }
 
 function fetchSuperheroPowers() {
-    const superheroId = document.getElementById('heroId').value;
+    const superheroId = document.getElementById('heroId').value;//make it a list with options 
 
     fetch(`/api/powers/${superheroId}`)
         .then(response => response.json())
