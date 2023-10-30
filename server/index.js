@@ -57,7 +57,7 @@ function getHeroPowers(heroId){
     });
 }
 
-app.get('/api/superhero/:id', (req, res) => {//this will be used to search by name MIGHT NOT BE USED
+app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id
     const heroID = req.params.id;
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
@@ -65,17 +65,17 @@ app.get('/api/superhero/:id', (req, res) => {//this will be used to search by na
 
         const superheroes = JSON.parse(data);
         const hero = superheroes.find(h => h.id === parseInt(heroID));
-        console.log(hero);
+        //console.log(hero);
 
         if (hero) {
-            res.json(hero);
+            res.json(hero);//sends and ends request in JSON format
         } else {
             res.status(404).json({ error: 'Hero not found' });
         }
     });
 });
 
-app.get('/api/powers/:id', (req, res) => {//This return's a hero's powers by ID
+app.get('/api/powers/:id', (req, res) => {//GET: superhero_powers for a given id
     fs.readFile('superhero_info.json', 'utf8', (err, heroData) => {
         if (err) return res.status(500).json({ error: 'Failed to read superhero data' });
 
@@ -98,7 +98,7 @@ app.get('/api/powers/:id', (req, res) => {//This return's a hero's powers by ID
     });
 });
 
-app.get('/api/publishers', (req, res) => {//this returns all publishers
+app.get('/api/publishers', (req, res) => {//GET: all publishers 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
         if (err) return res.status(500).json({ error: 'Failed to read data' });
 
@@ -109,7 +109,8 @@ app.get('/api/publishers', (req, res) => {//this returns all publishers
     });
 });
 
-app.get('/api/search', (req, res) => {//this is the search/filter endpoint using query parameters 
+//this is the search/filter endpoint using query parameters
+app.get('/api/search', (req, res) => { //GET: n number of matching hero's by gender, publisher, alignment
     const { gender, publisher, alignment, n } = req.query;//this will be directly in frontend
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
@@ -148,7 +149,7 @@ app.post('/api/superhero-list', async (req, res) => {//Create a new list with a 
 });
 
 //To get the actual thing I am looking for: list.rows[0].superhero_ids
-app.put('/api/superhero-list/:listName', async (req, res) => {//Save (or update) superhero IDs to a given list name
+app.put('/api/superhero-list/:listName', async (req, res) => {//Save superhero IDs to a given list name
     const listName = req.params.listName;//I'll need the front end to encode this with a %20 for spaces
     const { superheroIds } = req.body;
 
@@ -187,27 +188,55 @@ app.get('/api/superhero-list/:listName', async (req, res) => {
     }
 });
 
-//get names, information and powers from a list name 
+//get names, information and powers from a list name THIS IS WHAT IM WORKING ON
 app.get('/api/superhero-list-all/:listName', async (req, res) => {
-    //Get superhero IDs for a given list 
-    //this method returns the ids but I want it to return all information so match id to json file id's
-    //then I can get the name of the found object along with other information and return that
-    //then with that name, match it to the 
-    //use getHeroInfo(heroId) and the return of that should be 
     const listName = req.params.listName;
 
     try {
         const list = await pool.query(queries.getList, [listName]);
         
-        if (!list) {
+        if (!list || list.rowCount === 0) {
             res.status(404).send('List not found');
             return;
         }
-        for (let  i = 0; i <list.rows[0].superhero_ids.length; i++){
-            getHeroInfo(list.rows[0].superhero_ids[i]);
-            getHeroPowers(list.rows[0].superhero_ids[i]);
-        }
-        res.send("Succesfully found info");
+
+        // Retrieve the IDs from the list
+        const superheroIds = list.rows[0].superhero_ids; 
+
+        // read superhero info
+        fs.readFile('superhero_info.json', 'utf8', (err, superheroInfoData) => {
+            if (err) {
+                console.error('Error reading superhero info:', err);
+                return res.status(500).send('Error reading superhero data');
+            }
+
+            const superheroes = JSON.parse(superheroInfoData);
+
+            // Filter superheroes based on IDs from the list
+            const filteredHeroes = superheroes.filter(hero => superheroIds.includes(hero.id));
+
+            // read superhero powers
+            fs.readFile('superhero_powers.json', 'utf8', (err, superheroPowersData) => {
+                if (err) {
+                    console.error('Error reading superhero powers:', err);
+                    return res.status(500).send('Error reading superhero powers');
+                }
+
+                const powersList = JSON.parse(superheroPowersData);
+
+                // Combine hero info with their powers
+                const heroesWithPowers = filteredHeroes.map(hero => {
+                    const heroPowers = powersList.find(p => p.hero_names === hero.name);
+                    return {
+                        ...hero,
+                        powers: heroPowers ? Object.keys(heroPowers).filter(key => heroPowers[key] === "True") : []
+                    };
+                });
+
+                // Send the combined data
+                res.json({ heroes: heroesWithPowers });
+            });
+        });
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).send('Error fetching list');
