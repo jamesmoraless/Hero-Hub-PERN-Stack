@@ -14,49 +14,6 @@ app.use(bodyParser.json());
 // Serving static files from the client directory
 app.use(express.static(path.join(__dirname, '../client')));
 
-
-function getHeroInfo(heroId){//will be used to GET heros by ID IN the JSON file
-    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
-        if (err) return console.log( 'Failed to read data.');
-
-        const superheroes = JSON.parse(data);
-        const hero = superheroes.find(h => h.id === parseInt(heroId));
-        
-
-        if (hero) {
-            return hero; //OR express.json(hero) //HERE we want to return hero object instead
-        } else {
-            console.log('Hero not found.');
-        }
-    });
-}
-
-function getHeroPowers(heroId){
-    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
-        if (err) return console.log('Failed to read superhero data');
-
-        const superheroes = JSON.parse(data);
-        const hero = superheroes.find(h => h.id === parseInt(heroId));
-
-        if (!hero) return console.log('Superhero not found');
-
-        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
-            if (err) return console.log('Failed to read powers data');
-
-            const powersList = JSON.parse(powersData);
-            const heroPowers = powersList.find(h => h.hero_names === hero.name);
-
-            if (!heroPowers) return console.log('Superhero powers not found');
-
-            const truePowers = Object.keys(heroPowers).filter(key => heroPowers[key] === "True");
-            
-            //res.json({ powers: truePowers });
-            //return truePowers;
-            console.log(truePowers);
-        });
-    });
-}
-
 app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id
     const heroID = req.params.id;
 
