@@ -66,30 +66,49 @@ app.get('/api/publishers', (req, res) => {//GET: all publishers
     });
 });
 
-//this is the search/filter endpoint using query parameters
-app.get('/api/search', (req, res) => { //GET: n number of matching hero's by gender, publisher, alignment
-    const { gender, publisher, alignment, n } = req.query;//this will be directly in frontend
+app.get('/api/search', (req, res) => { //GET: n number of matching hero's by name, race, publisher, power
+    const { name, race, publisher, power, n } = req.query;//this will be directly in frontend
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
-        if (err) return res.status(500).json({ error: 'Failed to read data' });
+        if (err) {
+            return res.status(500).json({ error: 'Failed to read superhero data' });
+        }
 
         let superheroes = JSON.parse(data);
 
-        if (gender) {
-            superheroes = superheroes.filter(hero => hero.Gender && hero.Gender.toLowerCase() === gender.toLowerCase());
+        if (name) {
+            superheroes = superheroes.filter(hero => hero.name && hero.name.toLowerCase().includes(name.toLowerCase()));
+        }
+
+        if (race) {
+            superheroes = superheroes.filter(hero => hero.Race && hero.Race.toLowerCase() === race.toLowerCase());
         }
 
         if (publisher) {
             superheroes = superheroes.filter(hero => hero.Publisher && hero.Publisher.toLowerCase() === publisher.toLowerCase());
         }
 
-        if (alignment) {
-            superheroes = superheroes.filter(hero => hero.Alignment && hero.Alignment.toLowerCase() === alignment.toLowerCase());
-        }
+        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
+            if (err) {
+                return res.status(500).json({ error: 'Failed to read superhero powers' });
+            }
 
-        const limitedSuperheroes = n ? superheroes.slice(0, parseInt(n)) : superheroes;
+            let powers = JSON.parse(powersData);
 
-        res.json({ ids: limitedSuperheroes.map(hero => hero.id) });
+            if (power) {
+                superheroes = superheroes.filter(hero => {
+                    let heroPowers = powers.find(p => p.hero_names === hero.name);
+                    return heroPowers && heroPowers[power] === "True";
+                });
+            }
+
+            // Slicing superheroes array based on n
+            if (n) {
+                superheroes = superheroes.slice(0, parseInt(n));
+            }
+
+            res.json(superheroes);
+        });
     });
 });
 

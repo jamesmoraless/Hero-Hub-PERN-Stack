@@ -1,3 +1,99 @@
+    document.getElementById('searchButton').addEventListener('click', function(event) {
+        event.preventDefault();    
+        const name = document.getElementById('name').value;
+        const race = document.getElementById('race').value;
+        const publisher = document.getElementById('publisher').value;
+        const power = document.getElementById('power').value;
+        const numResults = document.getElementById('numResults').value;
+
+        
+
+        fetch(`/api/search?name=${encodeURIComponent(name)}&race=${encodeURIComponent(race)}&publisher=${encodeURIComponent(publisher)}&power=${encodeURIComponent(power)}&n=${encodeURIComponent(numResults)}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySuperHeroes(data);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    function displaySuperHeroes(superheroes) {
+        // Clear any previous results
+        let existingResults = document.getElementById('rslt');
+        if (existingResults) {
+            existingResults.remove();
+        }
+    
+        // Create new results div
+        let resultsDiv = document.createElement("div");
+        resultsDiv.setAttribute("class", "results");
+        resultsDiv.setAttribute("id", "rslt");
+    
+        let firstDiv = document.getElementById("bannerOne");
+        document.body.insertBefore(resultsDiv, firstDiv);
+    
+        // Create an unordered list to hold all superheroes
+        let unorderedList = document.createElement("ul");
+        unorderedList.setAttribute("class", "ul-results");
+        resultsDiv.appendChild(unorderedList);
+    
+        // Process each superhero
+        superheroes.forEach(result => {
+            const heroItem = createHeroListItem(result);
+            unorderedList.appendChild(heroItem);
+        });    
+    }
+
+    function createHeroListItem(result) {
+        //Create list item for a single superhero
+        let heroItem = document.createElement('li');
+    
+        // Add superhero details
+        const heroName = document.createElement('h2');
+        heroName.textContent = result.name;
+        heroItem.appendChild(heroName);
+    
+        const heroGender = document.createElement('p');
+        heroGender.textContent = `Gender: ${result.Gender}`;
+        heroItem.appendChild(heroGender);
+    
+        const heroEyeC = document.createElement('p');
+        heroEyeC.textContent = `Eye Color: ${result['Eye color']}`;
+        heroItem.appendChild(heroEyeC);
+    
+        const heroRace = document.createElement('p');
+        heroRace.textContent = `Race: ${result.Race}`;
+        heroItem.appendChild(heroRace);
+    
+        const heroHeight = document.createElement('p');
+        heroHeight.textContent = `Height: ${result.Height}`;
+        heroItem.appendChild(heroHeight);
+    
+        const heroSkinC = document.createElement('p');
+        heroSkinC.textContent = `Skin Colour: ${result['Skin color']}`;
+        heroItem.appendChild(heroSkinC);
+    
+        const heroWeight = document.createElement('p');
+        heroWeight.textContent = `Weight: ${result.Weight}`;
+        heroItem.appendChild(heroWeight);
+    
+        const heroHairC = document.createElement('p');
+        heroHairC.textContent = `Hair Colour: ${result['Hair color']}`;
+        heroItem.appendChild(heroHairC);
+    
+        const heroAlignment = document.createElement('p');
+        heroAlignment.textContent = `Alignment: ${result.Alignment}`;
+        heroItem.appendChild(heroAlignment);
+    
+        const heroPublisher = document.createElement('h4');
+        heroPublisher.textContent = `Publisher: ${result.Publisher}`;
+        heroItem.appendChild(heroPublisher);
+            
+        return heroItem;
+    }
+    
+///////////////////////////////////////////////////////////
+
+
 function fetchSuperheroInfo() {
     const id = document.getElementById('heroId').value;
 
@@ -11,86 +107,9 @@ function fetchSuperheroInfo() {
         });
 }
 
-function displaySuperHero(rslt){
-    const result = rslt;
-
-    // Clear any previous results
-    const existingResults = document.getElementById('rslt');
-    if (existingResults) {
-        existingResults.remove();
-    }
-
-    // Create div
-    let parentDiv = document.createElement("div");
-    parentDiv.setAttribute("class", "parentDiv");
-
-    // Create div
-    let newDiv = document.createElement("div");
-    newDiv.setAttribute("class", "results");
-    newDiv.setAttribute("id", "rslt");
-    parentDiv.appendChild(newDiv);
-
-    adjustHeroBoxPadding() 
-
-
-    let firstDiv = document.getElementById("bannerOne");
-    document.body.insertBefore(parentDiv, firstDiv);
-
-    let unorderedListTag = document.createElement("ul");
-    unorderedListTag.setAttribute("class", "ul-results");
-    newDiv.appendChild(unorderedListTag);
-
-    // Create a list item for the superhero and append parts to it, then append the item to the 'ul'
-    const heroItem = document.createElement('li');
-
-    const heroName = document.createElement('h2');
-    heroName.textContent = result.name;
-    heroItem.appendChild(heroName);
-
-    const heroGender = document.createElement('p');
-    heroGender.textContent = `Gender: ${result.Gender}`;
-    heroItem.appendChild(heroGender);
-
-    const heroEyeC = document.createElement('p');
-    heroEyeC.textContent = `Eye Color: ${result['Eye color']}`;
-    heroItem.appendChild(heroEyeC);
-
-    const heroRace = document.createElement('p');
-    heroRace.textContent = `Race: ${result.Race}`;
-    heroItem.appendChild(heroRace);
-
-    const heroHeight = document.createElement('p');
-    heroHeight.textContent = `Height: ${result.Height}`;
-    heroItem.appendChild(heroHeight);
-
-    const heroSkinC = document.createElement('p');
-    heroSkinC.textContent = `Skin Colour: ${result['Skin color']}`;
-    heroItem.appendChild(heroSkinC);
-
-    const heroWeight = document.createElement('p');
-    heroWeight.textContent = `Hair Colour: ${result.Weight}`;
-    heroItem.appendChild(heroWeight);
-
-
-    const heroHairC = document.createElement('p');
-    heroHairC.textContent = `Hair Colour: ${result['Hair color']}`;
-    heroItem.appendChild(heroHairC);
-
-    const heroAlignment = document.createElement('p');
-    heroAlignment.textContent = `Alignment: ${result.Alignment}`;
-    heroItem.appendChild(heroAlignment);
-
-    const heroPublisher = document.createElement('h4');
-    heroPublisher.textContent = `Publisher: ${result.Publisher}`;
-    heroItem.appendChild(heroPublisher);
-
-    unorderedListTag.appendChild(heroItem);
-    document.getElementById('powers-btn').disabled = false;
-    document.getElementById('clear-btn').disabled = false;
-}
 
 function fetchSuperheroPowers() {
-    const superheroId = document.getElementById('heroId').value;//make it a list with options 
+    const superheroId = document.getElementById('heroId').value;//get b 
 
     fetch(`/api/powers/${superheroId}`)
         .then(response => response.json())
