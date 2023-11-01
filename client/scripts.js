@@ -5,7 +5,6 @@
         const publisher = document.getElementById('publisher').value;
         const power = document.getElementById('power').value;
         const numResults = document.getElementById('numResults').value;
-
         
 
         fetch(`/api/search?name=${encodeURIComponent(name)}&race=${encodeURIComponent(race)}&publisher=${encodeURIComponent(publisher)}&power=${encodeURIComponent(power)}&n=${encodeURIComponent(numResults)}`)
@@ -27,9 +26,9 @@
         let resultsDiv = document.createElement("div");
         resultsDiv.setAttribute("class", "results");
         resultsDiv.setAttribute("id", "rslt");
-    
-        let firstDiv = document.getElementById("bannerOne");
-        document.body.insertBefore(resultsDiv, firstDiv);
+
+        let task1Div = document.getElementById("task1");
+        task1Div.appendChild(resultsDiv);        
     
         // Create an unordered list to hold all superheroes
         let unorderedList = document.createElement("ul");
@@ -39,60 +38,65 @@
         // Process each superhero
         superheroes.forEach(result => {
             const heroItem = createHeroListItem(result);
+            heroItem.id = `hero-${result.id}`;//set the heroItem id to the result.id
+            heroItem.classList.add('hero-item'); // Add class for styling
             unorderedList.appendChild(heroItem);
+
+            fetchSuperheroPowers(result.id);
         });    
     }
 
     function createHeroListItem(result) {
         //Create list item for a single superhero
-        let heroItem = document.createElement('li');
+        let heroInfoDiv = document.createElement('div');
+        heroInfoDiv.classList.add('hero-info');
     
         // Add superhero details
         const heroName = document.createElement('h2');
         heroName.textContent = result.name;
-        heroItem.appendChild(heroName);
+        heroInfoDiv.appendChild(heroName);
     
         const heroGender = document.createElement('p');
         heroGender.textContent = `Gender: ${result.Gender}`;
-        heroItem.appendChild(heroGender);
+        heroInfoDiv.appendChild(heroGender);
     
         const heroEyeC = document.createElement('p');
         heroEyeC.textContent = `Eye Color: ${result['Eye color']}`;
-        heroItem.appendChild(heroEyeC);
+        heroInfoDiv.appendChild(heroEyeC);
     
         const heroRace = document.createElement('p');
         heroRace.textContent = `Race: ${result.Race}`;
-        heroItem.appendChild(heroRace);
+        heroInfoDiv.appendChild(heroRace);
     
         const heroHeight = document.createElement('p');
         heroHeight.textContent = `Height: ${result.Height}`;
-        heroItem.appendChild(heroHeight);
+        heroInfoDiv.appendChild(heroHeight);
     
         const heroSkinC = document.createElement('p');
         heroSkinC.textContent = `Skin Colour: ${result['Skin color']}`;
-        heroItem.appendChild(heroSkinC);
+        heroInfoDiv.appendChild(heroSkinC);
     
         const heroWeight = document.createElement('p');
         heroWeight.textContent = `Weight: ${result.Weight}`;
-        heroItem.appendChild(heroWeight);
+        heroInfoDiv.appendChild(heroWeight);
     
         const heroHairC = document.createElement('p');
         heroHairC.textContent = `Hair Colour: ${result['Hair color']}`;
-        heroItem.appendChild(heroHairC);
+        heroInfoDiv.appendChild(heroHairC);
     
         const heroAlignment = document.createElement('p');
         heroAlignment.textContent = `Alignment: ${result.Alignment}`;
-        heroItem.appendChild(heroAlignment);
+        heroInfoDiv.appendChild(heroAlignment);
     
-        const heroPublisher = document.createElement('h4');
+        const heroPublisher = document.createElement('p');
         heroPublisher.textContent = `Publisher: ${result.Publisher}`;
-        heroItem.appendChild(heroPublisher);
-            
+        heroInfoDiv.appendChild(heroPublisher);
+
+        const heroItem = document.createElement('li');
+        heroItem.appendChild(heroInfoDiv); // Append heroInfoDiv to heroItem
+
         return heroItem;
     }
-    
-///////////////////////////////////////////////////////////
-
 
 function fetchSuperheroInfo() {
     const id = document.getElementById('heroId').value;
@@ -108,18 +112,45 @@ function fetchSuperheroInfo() {
 }
 
 
-function fetchSuperheroPowers() {
-    const superheroId = document.getElementById('heroId').value;//get b 
-
-    fetch(`/api/powers/${superheroId}`)
+function fetchSuperheroPowers(id) {
+    fetch(`/api/powers/${id}`)
         .then(response => response.json())
         .then(data => {
-            displayPowers(data.powers);
+            displayPowers(id, data.powers);
         })
         .catch(error => {
             console.error('Error fetching superhero powers:', error);
         });
 }
+
+function displayPowers(id, powers) {
+    const heroItem = document.getElementById(`hero-${id}`);
+    // Clear any previous powers results
+    if (!heroItem) {
+        console.log("Superhero item not found.");
+        return;
+    }
+
+    const powersDiv = document.createElement('div');
+    powersDiv.classList.add('powers-list'); // Add class for styling
+
+    const powersList = document.createElement('ul');
+
+    // Create a list item for each power and append to the 'ul'
+    powers.forEach(power => {
+        const powerItem = document.createElement('li');
+        powerItem.textContent = power;
+        powersList.appendChild(powerItem);
+    });
+    const powersTitle = document.createElement('h3');
+    powersTitle.textContent = "Powers";
+    powersDiv.appendChild(powersTitle);
+    powersDiv.appendChild(powersList);
+    heroItem.appendChild(powersDiv);
+}
+
+
+/////////////////////////////////////////
 
 function fetchPublishers(){
     fetch('/api/publishers').then(response => response.json()).then(data => {
@@ -156,51 +187,6 @@ function displayPublishers(publishers){
      publishersBox.appendChild(publisherDiv);
 }
 
-
-function displayPowers(powersArr) {
-    const powers = powersArr;
-    // Clear any previous powers results
-    const existingPowersResults = document.getElementById('powers-rslt');
-    if (existingPowersResults) {
-        existingPowersResults.remove();
-    }
-
-    // Create div for powers
-    let powersDiv = document.createElement("div");
-    powersDiv.setAttribute("class", "powers-results");
-    powersDiv.setAttribute("id", "powers-rslt");
-
-    // Place this new div next to the superhero results div
-    let superheroDiv = document.getElementById("rslt");
-    if(superheroDiv) {
-        superheroDiv.appendChild(powersDiv);
-    } else {
-        document.body.appendChild(powersDiv);
-    }
-
-     // Create h2 for powers
-     let powersTitle = document.createElement("h4");
-     powersDiv.setAttribute("class", "powers-title");
-     powersTitle.textContent = "Powers:";
-     powersDiv.appendChild(powersTitle);
-
-    let unorderedListTag = document.createElement("ul");
-    unorderedListTag.setAttribute("class", "ul-powers-results");
-    powersDiv.appendChild(unorderedListTag);
-
-
-    // Create a list item for each power and append to the 'ul'
-    powers.forEach(power => {
-        const powerItem = document.createElement('li');
-        powerItem.textContent = power;
-        unorderedListTag.appendChild(powerItem);
-    });
-}
-
-function adjustHeroBoxPadding() {
-    const heroBox = document.querySelector('.heroBox');
-    heroBox.style.paddingBottom = '0px';
-}
 
 function clearBox() {
     const parentDiv = document.querySelector('.parentDiv');
