@@ -66,7 +66,56 @@ app.get('/api/publishers', (req, res) => {//GET: all publishers
     });
 });
 
-app.get('/api/search', (req, res) => { //GET: n number of matching hero's by name, race, publisher, power
+app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power
+    const { name, race, publisher, power, n } = req.query;
+
+    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to read superhero data' });
+        }
+
+        let superheroes = JSON.parse(data);
+
+        if (name) {
+            superheroes = superheroes.filter(hero => hero.name && hero.name.toLowerCase().includes(name.toLowerCase()));
+        }
+
+        if (race) {
+            superheroes = superheroes.filter(hero => hero.Race && hero.Race.toLowerCase() === race.toLowerCase());
+        }
+
+        if (publisher) {
+            superheroes = superheroes.filter(hero => hero.Publisher && hero.Publisher.toLowerCase() === publisher.toLowerCase());
+        }
+
+        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
+            if (err) {
+                return res.status(500).json({ error: 'Failed to read superhero powers' });
+            }
+
+            let powers = JSON.parse(powersData);
+
+            if (power) {
+                superheroes = superheroes.filter(hero => {
+                    let heroPowers = powers.find(p => p.hero_names === hero.name);
+                    return heroPowers && heroPowers[power] === "True";
+                });
+            }
+
+            // Convert the filtered superheroes array to an array of IDs only
+            let superheroIds = superheroes.map(hero => hero.id);
+
+            // Slicing the superhero IDs array based on n
+            if (n) {
+                superheroIds = superheroIds.slice(0, parseInt(n));
+            }
+
+            res.json(superheroIds);
+        });
+    });
+});
+
+app.get('/api/searchNOTUSE', (req, res) => { //GET: n number of matching hero's by name, race, publisher, power
     const { name, race, publisher, power, n } = req.query;//this will be directly in frontend
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
@@ -112,7 +161,7 @@ app.get('/api/search', (req, res) => { //GET: n number of matching hero's by nam
     });
 });
 
-app.post('/api/superhero-list', async (req, res) => {//Create a new list with a given name
+app.post('/api/superhero-list', async (req, res) => {//Create a new list with a given name USED
     const { listName, superheroIds } = req.body;
     
     try {
@@ -125,7 +174,7 @@ app.post('/api/superhero-list', async (req, res) => {//Create a new list with a 
 });
 
 //To get the actual thing I am looking for: list.rows[0].superhero_ids
-app.put('/api/superhero-list/:listName', async (req, res) => {//Save superhero IDs to a given list name
+app.put('/api/superhero-list/:listName', async (req, res) => {//Save superhero IDs to a given list name 
     const listName = req.params.listName;//I'll need the front end to encode this with a %20 for spaces
     const { superheroIds } = req.body;
 
@@ -164,7 +213,7 @@ app.get('/api/superhero-list/:listName', async (req, res) => {
     }
 });
 
-//get names, information and powers from a list name THIS IS WHAT IM WORKING ON
+//get names, information and powers from a list name USED
 app.get('/api/superhero-list-all/:listName', async (req, res) => {
     const listName = req.params.listName;
 
@@ -234,6 +283,17 @@ app.delete('/api/superhero-list/:listName', async (req, res) => {//Delete list w
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).send('Error deleting list');
+    }
+});
+
+app.get('/api/all-superhero-lists', async (req, res) => {//USED to populate all hero lists (Additional get request)
+    try {
+        const result = await pool.query(queries.getAllListNames);
+        //result.rows would be an array of list names
+        res.json(result.rows.map(row => row.list_name));
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error fetching lists');
     }
 });
 

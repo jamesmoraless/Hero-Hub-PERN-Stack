@@ -1,3 +1,45 @@
+fetchListNames();
+
+function fetchListNames() {
+    fetch('/api/all-superhero-lists')
+    .then(response => response.json())
+    .then(listNames => {
+        populateListDropdown(listNames);
+    })
+    .catch(error => {
+        console.error('Error fetching list names:', error);
+    });
+}
+
+function fetchHeroInformation(id) {
+    return fetch(`/api/superhero/${id}`)
+        .then(response => response.json());
+}
+
+function fetchHeroPowers(id) {
+    return fetch(`/api/powers/${id}`)
+        .then(response => response.json());
+}
+
+function fetchPublishers(){
+    fetch('/api/publishers').then(response => response.json()).then(data => {
+        displayPublishers(data.publishers);
+    }).catch(err => {
+        console.log('Could not retrieve publishers:', err);
+    })
+}
+
+function populateListDropdown(listNames) {
+    const listSelector = document.getElementById('listSelector');
+    listSelector.innerHTML = ''; // Clear existing options if any
+
+    listNames.forEach(name => {
+        const option = document.createElement('option');
+        option.value = option.textContent = name;
+        listSelector.appendChild(option);
+    });
+}
+    //Handle the search by name, race, publisher or powers with "n" as the number of results to search for
     document.getElementById('searchButton').addEventListener('click', function(event) {
         event.preventDefault();    
         const name = document.getElementById('name').value;
@@ -9,13 +51,13 @@
 
         fetch(`/api/search?name=${encodeURIComponent(name)}&race=${encodeURIComponent(race)}&publisher=${encodeURIComponent(publisher)}&power=${encodeURIComponent(power)}&n=${encodeURIComponent(numResults)}`)
             .then(response => response.json())
-            .then(data => {
+            .then(data => { 
                 displaySuperHeroes(data);
             })
             .catch(error => console.error('Error:', error));
     });
 
-    // Handle the create list form submission
+    //Handle the create list form submission
     document.getElementById('createListForm').addEventListener('submit', function(event) {
         event.preventDefault();
         const listName = document.getElementById('listName').value.trim();
@@ -27,7 +69,7 @@
             superheroIds: JSON.stringify(selectedHeroIDs)
         };
         
-        // Simple validation
+        //Simple validation
         if (!listName) {
             alert("Please enter a list name.");
             return;
@@ -38,7 +80,7 @@
             return;
         }
 
-        // API call to create the list
+        //API call to create the list
         fetch('/api/superhero-list', {
             method: 'POST',
             headers: {
@@ -61,150 +103,91 @@
         });
     });
 
-    function displaySuperHeroes(superheroes) {
-        // Clear any previous results
+    //Handle showing list details from a list name 
+    document.getElementById('showListButton').addEventListener('click', function() {
+        const listName = document.getElementById('listSelector').value;
+    
+        fetch(`/api/superhero-list-all/${encodeURIComponent(listName)}`)//
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayListDetails(data.heroes);
+        })
+        .catch(error => {
+            console.error('Error fetching list details:', error);
+        });
+    });
+    
+    function displayListDetails(heroes) {//used to show from a list name 
+        const detailsContainer = document.getElementById('listDetails');
+        detailsContainer.innerHTML = ''; // Clear previous details
+    
+        heroes.forEach(hero => {
+            const heroElement = document.createElement('div');
+            heroElement.innerHTML = `
+                <h3>${hero.name}</h3>
+                <p><strong>Race:</strong> ${hero.race}</p>
+                <p><strong>Publisher:</strong> ${hero.publisher}</p>
+                <p><strong>Powers:</strong> ${hero.powers.join(', ')}</p>
+            `;
+            detailsContainer.appendChild(heroElement);
+        });
+    }
+
+    function displaySuperHeroes(ids) {//used to show from a random search with id's
         let existingResults = document.getElementById('rslt');
         if (existingResults) {
             existingResults.remove();
         }
     
-        // Create new results div
+        //Create new results div
         let resultsDiv = document.createElement("div");
         resultsDiv.setAttribute("class", "results");
         resultsDiv.setAttribute("id", "rslt");
 
-        let task1Div = document.getElementById("task1");
-        task1Div.appendChild(resultsDiv);        
-    
-        // Create an unordered list to hold all superheroes
-        let unorderedList = document.createElement("ul");
-        unorderedList.setAttribute("class", "ul-results");
-        resultsDiv.appendChild(unorderedList);
-    
-        // Process each superhero
-        superheroes.forEach(result => {
-            const heroItem = createHeroListItem(result);
-            heroItem.id = `hero-${result.id}`;//set the heroItem id to the result.id
-            heroItem.classList.add('hero-item'); // Add class for styling
-            unorderedList.appendChild(heroItem);
+        let task1Div = document.getElementById('task1');
+        task1Div.appendChild(resultsDiv);
 
-            fetchSuperheroPowers(result.id);
-        });    
-    }
-
-    function createHeroListItem(result) {
-        //Create list item for a single superhero
-        let heroInfoDiv = document.createElement('div');
-        heroInfoDiv.classList.add('hero-info');
+        ids.forEach(id => {
+            Promise.all([fetchHeroInformation(id), fetchHeroPowers(id)])
+                .then(([info, powersData]) => {
+                    // Combine the info and powers into a single object
+                    let superheroData = { ...info, powers: powersData.powers };
     
-        // Add superhero details
-        const heroName = document.createElement('h2');
-        heroName.textContent = result.name;
-        heroInfoDiv.appendChild(heroName);
-    
-        const heroGender = document.createElement('p');
-        heroGender.textContent = `Gender: ${result.Gender}`;
-        heroInfoDiv.appendChild(heroGender);
-    
-        const heroEyeC = document.createElement('p');
-        heroEyeC.textContent = `Eye Color: ${result['Eye color']}`;
-        heroInfoDiv.appendChild(heroEyeC);
-    
-        const heroRace = document.createElement('p');
-        heroRace.textContent = `Race: ${result.Race}`;
-        heroInfoDiv.appendChild(heroRace);
-    
-        const heroHeight = document.createElement('p');
-        heroHeight.textContent = `Height: ${result.Height}`;
-        heroInfoDiv.appendChild(heroHeight);
-    
-        const heroSkinC = document.createElement('p');
-        heroSkinC.textContent = `Skin Colour: ${result['Skin color']}`;
-        heroInfoDiv.appendChild(heroSkinC);
-    
-        const heroWeight = document.createElement('p');
-        heroWeight.textContent = `Weight: ${result.Weight}`;
-        heroInfoDiv.appendChild(heroWeight);
-    
-        const heroHairC = document.createElement('p');
-        heroHairC.textContent = `Hair Colour: ${result['Hair color']}`;
-        heroInfoDiv.appendChild(heroHairC);
-    
-        const heroAlignment = document.createElement('p');
-        heroAlignment.textContent = `Alignment: ${result.Alignment}`;
-        heroInfoDiv.appendChild(heroAlignment);
-    
-        const heroPublisher = document.createElement('p');
-        heroPublisher.textContent = `Publisher: ${result.Publisher}`;
-        heroInfoDiv.appendChild(heroPublisher);
-
-        const heroItem = document.createElement('li');
-        heroItem.appendChild(heroInfoDiv); // Append heroInfoDiv to heroItem
-
-        return heroItem;
-    }
-
-function fetchSuperheroInfo() {
-    const id = document.getElementById('heroId').value;
-
-    fetch(`/api/superhero/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            displaySuperHero(data);
-        })
-        .catch(error => {
-            console.error('Error fetching superhero:', error);
+                    // Create the superhero element with all the details
+                    let superheroElement = createSuperheroElement(id, superheroData);
+                    resultsDiv.appendChild(superheroElement);
+                })
+                .catch(error => {
+                    console.error('Error fetching details for superhero ID:', id, error);
+                    resultsDiv.innerHTML += `<p>Error loading details for superhero ID: ${id}</p>`;
+                });
         });
-}
-
-
-function fetchSuperheroPowers(id) {
-    fetch(`/api/powers/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            displayPowers(id, data.powers);
-        })
-        .catch(error => {
-            console.error('Error fetching superhero powers:', error);
-        });
-}
-
-function displayPowers(id, powers) {
-    const heroItem = document.getElementById(`hero-${id}`);
-    // Clear any previous powers results
-    if (!heroItem) {
-        console.log("Superhero item not found.");
-        return;
     }
 
-    const powersDiv = document.createElement('div');
-    powersDiv.classList.add('powers-list'); // Add class for styling
-
-    const powersList = document.createElement('ul');
-
-    // Create a list item for each power and append to the 'ul'
-    powers.forEach(power => {
-        const powerItem = document.createElement('li');
-        powerItem.textContent = power;
-        powersList.appendChild(powerItem);
-    });
-    const powersTitle = document.createElement('h3');
-    powersTitle.textContent = "Powers";
-    powersDiv.appendChild(powersTitle);
-    powersDiv.appendChild(powersList);
-    heroItem.appendChild(powersDiv);
-}
-
-
-/////////////////////////////////////////
-
-function fetchPublishers(){
-    fetch('/api/publishers').then(response => response.json()).then(data => {
-        displayPublishers(data.publishers);
-    }).catch(err => {
-        console.log('Could not retrieve publishers:', err);
-    })
-}
+    function createSuperheroElement(id, superheroData) {//used to streamline the creation of a hero  
+        // Creating an element to display all details of a superhero
+        let superheroElement = document.createElement('div');
+        superheroElement.innerHTML = `
+            <h3>${superheroData.name} (ID: ${id})</h3>
+            <p>Race: ${superheroData.Race}</p>
+            <p>Publisher: ${superheroData.Publisher}</p>
+            <p>Powers: ${superheroData.powers.join(', ')}</p>
+            <p>Gender: ${superheroData.Gender}</p>
+            <p>Eye Color: ${superheroData['Eye color']}</p>
+            <p>Height: ${superheroData.Height}</p>
+            <p>Skin Color: ${superheroData['Skin color']}</p>
+            <p>Weight: ${superheroData.Weight}</p>
+            <p>Hair Color: ${superheroData['Hair color']}</p>
+            <p>Alignment: ${superheroData.Alignment}</p>
+        `;
+        return superheroElement;
+    }
+    //////////////////////////////////////////////////////////
 
 function displayPublishers(publishers){
     const existingPublisherResults = document.getElementById('publisherResults');
@@ -234,7 +217,7 @@ function displayPublishers(publishers){
 }
 
 
-function clearBox() {
+function clearBox() {//might be able to delete this 
     const parentDiv = document.querySelector('.parentDiv');
     const heroBox = document.querySelector('.heroBox');
     parentDiv.remove();
