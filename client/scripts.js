@@ -15,6 +15,52 @@
             .catch(error => console.error('Error:', error));
     });
 
+    // Handle the create list form submission
+    document.getElementById('createListForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const listName = document.getElementById('listName').value.trim();
+        const selectedHeroIDs = Array.from(document.getElementById('superheroes').selectedOptions)
+        .map(option => parseInt(option.value, 10));
+
+        const payload = { 
+            listName: document.getElementById('listName').value, 
+            superheroIds: JSON.stringify(selectedHeroIDs)
+        };
+        
+        // Simple validation
+        if (!listName) {
+            alert("Please enter a list name.");
+            return;
+        }
+
+        if (selectedHeroIDs.length === 0) {
+            alert("Please select at least one superhero ID.");
+            return;
+        }
+
+        // API call to create the list
+        fetch('/api/superhero-list', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.text();
+        })
+        .then(data => {
+            alert("List created successfully!");
+        })
+        .catch(error => {
+            console.error('Error creating the list:', error);
+            alert("Error creating the list.");
+        });
+    });
+
     function displaySuperHeroes(superheroes) {
         // Clear any previous results
         let existingResults = document.getElementById('rslt');
