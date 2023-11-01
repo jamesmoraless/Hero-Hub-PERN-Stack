@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 // Serving static files from the client directory
 app.use(express.static(path.join(__dirname, '../client')));
 
-app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id
+app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id; USED
     const heroID = req.params.id;
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
@@ -32,7 +32,7 @@ app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given i
     });
 });
 
-app.get('/api/powers/:id', (req, res) => {//GET: superhero_powers for a given id
+app.get('/api/powers/:id', (req, res) => {//GET: superhero_powers for a given id; USED
     fs.readFile('superhero_info.json', 'utf8', (err, heroData) => {
         if (err) return res.status(500).json({ error: 'Failed to read superhero data' });
 
@@ -66,7 +66,7 @@ app.get('/api/publishers', (req, res) => {//GET: all publishers
     });
 });
 
-app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power
+app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power; USED
     const { name, race, publisher, power, n } = req.query;
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
@@ -115,53 +115,7 @@ app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by 
     });
 });
 
-app.get('/api/searchNOTUSE', (req, res) => { //GET: n number of matching hero's by name, race, publisher, power
-    const { name, race, publisher, power, n } = req.query;//this will be directly in frontend
-
-    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to read superhero data' });
-        }
-
-        let superheroes = JSON.parse(data);
-
-        if (name) {
-            superheroes = superheroes.filter(hero => hero.name && hero.name.toLowerCase().includes(name.toLowerCase()));
-        }
-
-        if (race) {
-            superheroes = superheroes.filter(hero => hero.Race && hero.Race.toLowerCase() === race.toLowerCase());
-        }
-
-        if (publisher) {
-            superheroes = superheroes.filter(hero => hero.Publisher && hero.Publisher.toLowerCase() === publisher.toLowerCase());
-        }
-
-        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
-            if (err) {
-                return res.status(500).json({ error: 'Failed to read superhero powers' });
-            }
-
-            let powers = JSON.parse(powersData);
-
-            if (power) {
-                superheroes = superheroes.filter(hero => {
-                    let heroPowers = powers.find(p => p.hero_names === hero.name);
-                    return heroPowers && heroPowers[power] === "True";
-                });
-            }
-
-            // Slicing superheroes array based on n
-            if (n) {
-                superheroes = superheroes.slice(0, parseInt(n));
-            }
-
-            res.json(superheroes);
-        });
-    });
-});
-
-app.post('/api/superhero-list', async (req, res) => {//Create a new list with a given name USED
+app.post('/api/superhero-list', async (req, res) => {//Create a new list with a given name and superhero ID's; USED
     const { listName, superheroIds } = req.body;
     
     try {
@@ -174,7 +128,7 @@ app.post('/api/superhero-list', async (req, res) => {//Create a new list with a 
 });
 
 //To get the actual thing I am looking for: list.rows[0].superhero_ids
-app.put('/api/superhero-list/:listName', async (req, res) => {//Save superhero IDs to a given list name 
+app.put('/api/superhero-list/:listName', async (req, res) => {//Save/Update superhero IDs to a given list name; TOBE USED 
     const listName = req.params.listName;//I'll need the front end to encode this with a %20 for spaces
     const { superheroIds } = req.body;
 
@@ -194,7 +148,7 @@ app.put('/api/superhero-list/:listName', async (req, res) => {//Save superhero I
     }
 });
 //get list id's given a list name 
-app.get('/api/superhero-list/:listName', async (req, res) => { 
+app.get('/api/superhero-list/:listName', async (req, res) => {//GET: id's from a list given the list name; UNUSED
     const listName = req.params.listName;
 
     try {
@@ -213,8 +167,7 @@ app.get('/api/superhero-list/:listName', async (req, res) => {
     }
 });
 
-//get names, information and powers from a list name USED
-app.get('/api/superhero-list-all/:listName', async (req, res) => {
+app.get('/api/superhero-list-all/:listName', async (req, res) => {//GET: names, information and powers from a given list name; USED
     const listName = req.params.listName;
 
     try {
@@ -268,7 +221,7 @@ app.get('/api/superhero-list-all/:listName', async (req, res) => {
     }
 });
 
-app.delete('/api/superhero-list/:listName', async (req, res) => {//Delete list with a given list name
+app.delete('/api/superhero-list/:listName', async (req, res) => {//DELETE: list with a given list name
     const listName = req.params.listName;
 
     try {

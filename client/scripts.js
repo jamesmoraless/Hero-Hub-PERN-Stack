@@ -39,6 +39,7 @@ function populateListDropdown(listNames) {
         listSelector.appendChild(option);
     });
 }
+
     //Handle the search by name, race, publisher or powers with "n" as the number of results to search for
     document.getElementById('searchButton').addEventListener('click', function(event) {
         event.preventDefault();    
@@ -124,7 +125,7 @@ function populateListDropdown(listNames) {
     
     function displayListDetails(heroes) {//used to show from a list name 
         const detailsContainer = document.getElementById('listDetails');
-        detailsContainer.innerHTML = ''; // Clear previous details
+        detailsContainer.innerHTML = ''; //Clear previous details
     
         heroes.forEach(hero => {
             const heroElement = document.createElement('div');
@@ -155,10 +156,10 @@ function populateListDropdown(listNames) {
         ids.forEach(id => {
             Promise.all([fetchHeroInformation(id), fetchHeroPowers(id)])
                 .then(([info, powersData]) => {
-                    // Combine the info and powers into a single object
+                    //Combine the info and powers into a single object
                     let superheroData = { ...info, powers: powersData.powers };
     
-                    // Create the superhero element with all the details
+                    //Create the superhero element with all the details
                     let superheroElement = createSuperheroElement(id, superheroData);
                     resultsDiv.appendChild(superheroElement);
                 })
@@ -195,23 +196,23 @@ function displayPublishers(publishers){
         existingPublisherResults.remove();
     }
 
-     // 2. Create the new div.
+     //Create the new div
      let publisherDiv = document.createElement("div");
      publisherDiv.setAttribute("id", "publisherResults");
      
-     // 3. Append the unordered list to this div.
+     //Append the unordered list to this div
      let unorderedList = document.createElement("ul");
      unorderedList.setAttribute("class", "publisher-list");
      publisherDiv.appendChild(unorderedList);
  
-     // 4. Populate the unordered list with the publishers.
+     //Populate the unordered list with the publishers
      publishers.forEach(publisher => {
          let listItem = document.createElement('li');
          listItem.textContent = publisher;
          unorderedList.appendChild(listItem);
      });
  
-     // 5. Add the publisherDiv to publishersBox.
+     //Add the publisherDiv to publishersBox
      let publishersBox = document.getElementById('taskthree');
      publishersBox.appendChild(publisherDiv);
 }

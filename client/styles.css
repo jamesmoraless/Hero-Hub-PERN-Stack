@@ -36,31 +36,3 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.firstTask{
-    height: 100vh;
-    width: 98vw;
-}
-.hero-item {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 20px; /* Adds some space between each hero */
-}
-
-.hero-info,
-.powers-list {
-    flex: 1;
-    margin: 0 10px; /* Adds some space around the info and powers list */
-}
-
-/* Optionally, you can style the powers list further */
-.powers-list ul {
-    list-style-type: none; /* Removes default bullet points */
-    padding: 0;
-}
-.powers-list li {
-    background: #f0f0f0;
-    padding: 5px;
-    margin-bottom: 5px;
-    border-radius: 5px;
-}
