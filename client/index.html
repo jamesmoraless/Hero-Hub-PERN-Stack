@@ -14,7 +14,7 @@
     </div>
 
     <div id="task1" class="firstTask">
-        <h1>Search for Superheroes</h1>
+        <h1>Search for Superheroes by Name, Race, Publisher and Power</h1>
         <form id="searchForm">
             <input type="text" id="name" placeholder="Name" />
             <input type="text" id="race" placeholder="Race" />
@@ -46,6 +46,7 @@
 
     <div id="task2" class="secondTask">
         <h1>Create and Manage Superhero Lists</h1>
+        <h2>Create Superhero List Details</h2>
         <form id="createListForm">
             <label for="listName">List Name:</label>
                 <input type="text" id="listName" name="listName" placeholder="Enter list name" required>
@@ -80,15 +81,63 @@
     </div>
 
     <div id="displayLists">
-        <h2>Superhero Lists</h2>
-        <label for="listSelector">Select a List:</label>
-        <select id="listSelector">
+        <h2>View Superhero List Details</h2>
+        <label for="viewListSelector">Select a List:</label>
+        <select id="viewListSelector">
         </select>
         <button id="showListButton">Show List</button>
     
         <div id="listDetails">
-            <!-- Superhero details will be displayed here -->
+            
         </div>
+    </div>
+
+    <div id="editLists">
+        <h2>Update Superhero Lists</h2>
+        <label for="editListSelector">Select a List:</label>
+        <select id="editListSelector">
+        </select>
+
+        <label for="superheroesSelect">Select Superhero IDs (0-20):</label>
+                <select id="superheroesSelect" name="superheroesSelect" multiple>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+
+            </select>
+
+        <button id="updateList">Update List</button>
+    
+        <div id="updateMessage">
+            <!-- message will display here -->
+        </div>
+    </div>
+
+    <div id="deleteListSection">
+        <h2>Delete a Superhero List</h2>
+        <label for="deleteListSelector">Select a List to Delete:</label>
+        <select id="deleteListSelector">
+            <!-- Options will be populated here -->
+        </select>
+        <button id="deleteListButton">Delete List</button>
     </div>
 
     <script src="scripts.js"></script>

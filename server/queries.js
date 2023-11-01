@@ -14,5 +14,4 @@ module.exports = {
     getAllListNames,
 }
 
-//I'm at CREATE TABLE superhero_lists()
 //\c webtech to connect to the db 

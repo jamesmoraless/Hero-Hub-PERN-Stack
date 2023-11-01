@@ -2,13 +2,13 @@ fetchListNames();
 
 function fetchListNames() {
     fetch('/api/all-superhero-lists')
-    .then(response => response.json())
-    .then(listNames => {
-        populateListDropdown(listNames);
-    })
-    .catch(error => {
-        console.error('Error fetching list names:', error);
-    });
+        .then(response => response.json())
+        .then(listNames => {
+            populateListSelector(listNames);
+        })
+        .catch(error => {
+            console.error('Error fetching list names:', error);
+        });
 }
 
 function fetchHeroInformation(id) {
@@ -29,15 +29,26 @@ function fetchPublishers(){
     })
 }
 
-function populateListDropdown(listNames) {
-    const listSelector = document.getElementById('listSelector');
-    listSelector.innerHTML = ''; // Clear existing options if any
+function populateListSelector(listNames) {
+    const viewListSelector = document.getElementById('viewListSelector');
+    const editListSelector = document.getElementById('editListSelector');
+    const deleteListSelector = document.getElementById('deleteListSelector');
 
-    listNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = option.textContent = name;
-        listSelector.appendChild(option);
+    [viewListSelector, editListSelector, deleteListSelector].forEach(selector => {
+        selector.innerHTML = ''; // Clear previous options
+        listNames.forEach(name => {
+            let option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            selector.appendChild(option);
+        });
     });
+}
+
+function doesListNameExist(listName) {
+    const editListSelector = document.getElementById("editListSelector");
+    const options = Array.from(editListSelector.options);
+    return options.some(option => option.value === listName);
 }
 
     //Handle the search by name, race, publisher or powers with "n" as the number of results to search for
@@ -64,6 +75,12 @@ function populateListDropdown(listNames) {
         const listName = document.getElementById('listName').value.trim();
         const selectedHeroIDs = Array.from(document.getElementById('superheroes').selectedOptions)
         .map(option => parseInt(option.value, 10));
+
+        // Check if list name already exists
+        if (doesListNameExist(listName)) {
+            alert("List name already exists. Please use a different name.");
+            return;
+        }
 
         const payload = { 
             listName: document.getElementById('listName').value, 
@@ -97,6 +114,7 @@ function populateListDropdown(listNames) {
         })
         .then(data => {
             alert("List created successfully!");
+            fetchListNames();//refetch list names from the backend 
         })
         .catch(error => {
             console.error('Error creating the list:', error);
@@ -106,7 +124,7 @@ function populateListDropdown(listNames) {
 
     //Handle showing list details from a list name 
     document.getElementById('showListButton').addEventListener('click', function() {
-        const listName = document.getElementById('listSelector').value;
+        const listName = document.getElementById('viewListSelector').value;
     
         fetch(`/api/superhero-list-all/${encodeURIComponent(listName)}`)//
         .then(response => {
@@ -122,18 +140,110 @@ function populateListDropdown(listNames) {
             console.error('Error fetching list details:', error);
         });
     });
+
+    //Handle updating list form from a selected list Name and updated list values
+    document.getElementById("updateList").addEventListener("click", () => {
+        const listName = document.getElementById("editListSelector").value;
+        updateSuperheroList(listName);
+    });
+
+    document.getElementById('deleteListButton').addEventListener('click', () => {
+        const listName = document.getElementById('deleteListSelector').value;
+    
+        if (!listName) {
+            alert("Please select a list to delete.");
+            return;
+        }
+    
+        if (confirm(`Are you sure you want to delete the list "${listName}"?`)) {
+            deleteSuperheroList(listName);
+        }
+    });
+    
+    function deleteSuperheroList(listName) {
+        fetch(`/api/superhero-list/${encodeURIComponent(listName)}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            alert("List deleted successfully!");
+            fetchListNames(); // Refetch list names to update the dropdowns
+        })
+        .catch(error => {
+            console.error('Error deleting the list:', error);
+            alert("Error deleting the list.");
+        });
+    }
+    
+    //computes the updating and fetching of data
+    function updateSuperheroList(listName) {
+        const selectedHeroIDs = Array.from(document.getElementById('superheroesSelect').selectedOptions)
+        .map(option => parseInt(option.value, 10));
+
+        const payload = { 
+            superheroIds: JSON.stringify(selectedHeroIDs)
+        };
+        
+        //Simple validation
+        if (!listName) {
+            alert("Please select a list name.");
+            return;
+        }
+
+        if (selectedHeroIDs.length === 0) {
+            alert("Please select at least one superhero ID.");
+            return;
+        }
+    
+        fetch(`/api/superhero-list/${encodeURIComponent(listName)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            alert("List updated successfully!");
+            fetchListNames();//refetch list names from the backend
+        })
+        .catch(error => {
+            console.error('Error creating the list:', error);
+            alert("Error creating the list.");
+        });
+    }
     
     function displayListDetails(heroes) {//used to show from a list name 
         const detailsContainer = document.getElementById('listDetails');
         detailsContainer.innerHTML = ''; //Clear previous details
+
+        if (heroes.length === 0) {
+            detailsContainer.innerHTML = '<p>No heroes found in this list.</p>';
+            return;
+        }
     
         heroes.forEach(hero => {
             const heroElement = document.createElement('div');
             heroElement.innerHTML = `
-                <h3>${hero.name}</h3>
-                <p><strong>Race:</strong> ${hero.race}</p>
-                <p><strong>Publisher:</strong> ${hero.publisher}</p>
-                <p><strong>Powers:</strong> ${hero.powers.join(', ')}</p>
+            <h3>${hero.name} (ID: ${hero.id})</h3>
+            <p>Race: ${hero.Race}</p>
+            <p>Publisher: ${hero.Publisher}</p>
+            <p>Powers: ${hero.powers.join(', ')}</p>
+            <p>Gender: ${hero.Gender}</p>
+            <p>Eye Color: ${hero['Eye color']}</p>
+            <p>Height: ${hero.Height}</p>
+            <p>Skin Color: ${hero['Skin color']}</p>
+            <p>Weight: ${hero.Weight}</p>
+            <p>Hair Color: ${hero['Hair color']}</p>
+            <p>Alignment: ${hero.Alignment}</p>
             `;
             detailsContainer.appendChild(heroElement);
         });
@@ -217,11 +327,3 @@ function displayPublishers(publishers){
      publishersBox.appendChild(publisherDiv);
 }
 
-
-function clearBox() {//might be able to delete this 
-    const parentDiv = document.querySelector('.parentDiv');
-    const heroBox = document.querySelector('.heroBox');
-    parentDiv.remove();
-    heroBox.style.paddingBottom = '50vh';
-
-}

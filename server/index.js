@@ -147,6 +147,7 @@ app.put('/api/superhero-list/:listName', async (req, res) => {//Save/Update supe
         res.status(500).send('Error updating list');
     }
 });
+
 //get list id's given a list name 
 app.get('/api/superhero-list/:listName', async (req, res) => {//GET: id's from a list given the list name; UNUSED
     const listName = req.params.listName;
