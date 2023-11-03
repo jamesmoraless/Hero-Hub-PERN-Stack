@@ -34,5 +34,67 @@ html {
 
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    line-height: 1.6;
+}
+
+/* Base styles for task containers */
+.firstTask, .secondTask, #displayLists, #editLists, #deleteListSection {
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Individual styling */
+.firstTask {
+    background-color: #e7f7fe;
+}
+
+.secondTask {
+    background-color: #fef7e7;
+}
+
+#displayLists {
+    background-color: #e7fee8;
+}
+
+#editLists {
+    background-color: #fde7fd;
+}
+
+#deleteListSection {
+    background-color: #fff0f0;
+}
+
+/* Style adjustments for forms and inputs */
+form {
+    margin-top: 15px;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
 }
 
