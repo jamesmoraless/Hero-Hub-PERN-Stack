@@ -6,7 +6,7 @@ const pool = require('./db');
 const queries = require('./queries');
 
 const app = express();
-const PORT = 5000;
+const PORT = 3000;
 
 // Use body-parser middleware to handle JSON requests
 app.use(bodyParser.json());
