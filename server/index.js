@@ -71,7 +71,7 @@ app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by 
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
         if (err) {
-            return res.status(500).json({ error: 'Failed to read superhero data' });
+            return res.status(500).json({ error: `Failed to read superhero data ${err.message}` });
         }
 
         let superheroes = JSON.parse(data);
