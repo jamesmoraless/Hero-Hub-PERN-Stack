@@ -1,7 +1,7 @@
 fetchListNames();
 
 function fetchListNames() {
-    fetch('/api/all-superhero-lists')
+    fetch(':3000/api/all-superhero-lists')
         .then(response => response.json())
         .then(listNames => {
             populateListSelector(listNames);
@@ -12,17 +12,17 @@ function fetchListNames() {
 }
 
 function fetchHeroInformation(id) {
-    return fetch(`/api/superhero/${id}`)
+    return fetch(`:3000/api/superhero/${id}`)
         .then(response => response.json());
 }
 
 function fetchHeroPowers(id) {
-    return fetch(`/api/powers/${id}`)
+    return fetch(`:3000/api/powers/${id}`)
         .then(response => response.json());
 }
 
 function fetchPublishers(){
-    fetch('/api/publishers').then(response => response.json()).then(data => {
+    fetch(':3000/api/publishers').then(response => response.json()).then(data => {
         displayPublishers(data.publishers);
     }).catch(err => {
         console.log('Could not retrieve publishers:', err);
@@ -61,7 +61,7 @@ function doesListNameExist(listName) {
         const numResults = document.getElementById('numResults').value;
         
 
-        fetch(`/api/search?name=${encodeURIComponent(name)}&race=${encodeURIComponent(race)}&publisher=${encodeURIComponent(publisher)}&power=${encodeURIComponent(power)}&n=${encodeURIComponent(numResults)}`)
+        fetch(`:3000/api/search?name=${encodeURIComponent(name)}&race=${encodeURIComponent(race)}&publisher=${encodeURIComponent(publisher)}&power=${encodeURIComponent(power)}&n=${encodeURIComponent(numResults)}`)
             .then(response => response.json())
             .then(data => { 
                 displaySuperHeroes(data);
@@ -99,7 +99,7 @@ function doesListNameExist(listName) {
         }
 
         //API call to create the list
-        fetch('/api/superhero-list', {
+        fetch(':3000/api/superhero-list', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ function doesListNameExist(listName) {
     document.getElementById('showListButton').addEventListener('click', function() {
         const listName = document.getElementById('viewListSelector').value;
     
-        fetch(`/api/superhero-list-all/${encodeURIComponent(listName)}`)//
+        fetch(`:3000/api/superhero-list-all/${encodeURIComponent(listName)}`)//
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -161,7 +161,7 @@ function doesListNameExist(listName) {
     });
     
     function deleteSuperheroList(listName) {
-        fetch(`/api/superhero-list/${encodeURIComponent(listName)}`, {
+        fetch(`:3000/api/superhero-list/${encodeURIComponent(listName)}`, {
             method: 'DELETE',
         })
         .then(response => {
@@ -200,7 +200,7 @@ function doesListNameExist(listName) {
             return;
         }
     
-        fetch(`/api/superhero-list/${encodeURIComponent(listName)}`, {
+        fetch(`:3000/api/superhero-list/${encodeURIComponent(listName)}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
