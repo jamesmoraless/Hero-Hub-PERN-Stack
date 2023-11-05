@@ -327,3 +327,28 @@ function displayPublishers(publishers){
      publishersBox.appendChild(publisherDiv);
 }
 
+///////////////////////
+function sortElements(containerSelector, compareFunction) {
+    const container = document.querySelector(containerSelector);
+    let items = Array.from(container.children);
+    items.sort(compareFunction);
+
+    // Re-append items to container
+    items.forEach(item => container.appendChild(item));
+}
+
+function compareByName(a, b) {
+    const nameA = a.querySelector('h3').textContent.toUpperCase(); // assuming name is in <h3>
+    const nameB = b.querySelector('h3').textContent.toUpperCase();
+    return nameA.localeCompare(nameB);
+}
+
+// For sorting superhero details by name in task1
+document.getElementById('sortSearchResults').addEventListener('click', function() {
+    sortElements('#rslt', compareByName);
+});
+
+// For sorting list details by name in displayLists
+document.getElementById('sortListDetails').addEventListener('click', function() {
+    sortElements('#listDetails', compareByName);
+});
