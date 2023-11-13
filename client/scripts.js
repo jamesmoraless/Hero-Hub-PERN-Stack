@@ -1,4 +1,16 @@
 fetchListNames();
+function sanitize(string) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        "/": '&#x2F;',
+    };
+    const reg = /[&<>"'/]/ig;
+    return string.replace(reg, (match)=>(map[match]));
+  }  
 
 function fetchListNames() {
     fetch('/api/all-superhero-lists')
@@ -54,11 +66,12 @@ function doesListNameExist(listName) {
     //Handle the search by name, race, publisher or powers with "n" as the number of results to search for
     document.getElementById('searchButton').addEventListener('click', function(event) {
         event.preventDefault();    
-        const name = document.getElementById('name').value;
-        const race = document.getElementById('race').value;
-        const publisher = document.getElementById('publisher').value;
-        const power = document.getElementById('power').value;
-        const numResults = document.getElementById('numResults').value;
+        //Must do input sanitization
+        const name = sanitize(document.getElementById('name').value);
+        const race = sanitize(document.getElementById('race').value);
+        const publisher = sanitize(document.getElementById('publisher').value);
+        const power = sanitize(document.getElementById('power').value);
+        const numResults = sanitize(document.getElementById('numResults').value);
         
 
         fetch(`/api/search?name=${encodeURIComponent(name)}&race=${encodeURIComponent(race)}&publisher=${encodeURIComponent(publisher)}&power=${encodeURIComponent(power)}&n=${encodeURIComponent(numResults)}`)
@@ -72,7 +85,8 @@ function doesListNameExist(listName) {
     //Handle the create list form submission
     document.getElementById('createListForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        const listName = document.getElementById('listName').value.trim();
+        //Must do input sanitization
+        const listName = sanitize(document.getElementById('listName').value.trim());
         const selectedHeroIDs = Array.from(document.getElementById('superheroes').selectedOptions)
         .map(option => parseInt(option.value, 10));
 
