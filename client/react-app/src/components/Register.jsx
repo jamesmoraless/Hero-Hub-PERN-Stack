@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom';
 export default function Register(props) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [nickname, setNickname] = useState('');
     const [message, setMessage] = useState('');
 
 
@@ -13,14 +14,13 @@ export default function Register(props) {
         e.preventDefault();
         //Call the API to register the user
         try{
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch('http://localhost:5000/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password}),
+                body: JSON.stringify({ email, password, nickname}),
             });
-            //console.log(response);
             const data = await response.json();
             //console.log('Data:', data);
 
@@ -48,6 +48,14 @@ export default function Register(props) {
             onChange={(e) => setEmail(e.target.value)}
             required
             />
+            <input
+            type="text"
+            placeholder="Nickname"
+            value={nickname}
+            onChange={(e)=>{setNickname(e.target.value)}}
+            required
+            />
+
             <input
             type = "password"
             placeholder = "Password"

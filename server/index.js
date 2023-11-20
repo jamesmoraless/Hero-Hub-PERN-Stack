@@ -58,6 +58,13 @@ app.post('/api/register', async (req, res) => {//Register New User
         return res.status(400).json({ message : 'Email is already in use. Please choose another email.'});
       }
     
+      //check if username exists
+    const username = await pool.query(queries.checkNicknameExists, [nickname]);    
+    if (username.rows.length > 0){
+        return res.status(400).json({ message : 'Nickname is already in use. Please choose another nickname.'});
+      }
+
+
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -79,7 +86,6 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
       
         //check if email exists 
         const user = await pool.query(queries.checkEmailExists, [email]); 
-        
         if (user.rows.length === 0){
           return res.status(400).json({ message : 'Invalid Email. Try again.'});
         }
@@ -258,7 +264,7 @@ app.get('/api/open/public-hero-lists/:listName', async (req, res) => {//GET: nam
 app.post('/api/secure/superhero-list', authenticate, async (req, res) => {//Create a list with listName, IDs, description, visibility; AUTH USED
     const { listName, superheroIds, description, visibility } = req.body;
     const userID = req.user.id;
-    
+    //console.log(listName, superheroIds, description, visibility, userID);
     try {
         await pool.query(queries.addList, [listName, superheroIds, description, visibility, userID]);
         res.status(201).send('List created successfully');

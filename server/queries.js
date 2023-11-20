@@ -9,6 +9,7 @@ const getAllListNames = "SELECT name FROM hero_lists";
 
 const addUser = "INSERT INTO users (email, password, nickname) VALUES ($1, $2, $3) RETURNING *";
 const checkEmailExists = "SELECT * FROM users WHERE email = $1"; 
+const checkNicknameExists = "SELECT * FROM users WHERE nickname = $1"; 
 
 const addReview = "INSERT INTO reviews (name, user_id, rating, comment, nickname) VALUES ($1, $2, $3, $4, $5)";
 
@@ -48,7 +49,8 @@ module.exports = {
     checkEmailExists,
     getListWithUserId,
     addReview,
-    getPublicHeroLists
+    getPublicHeroLists,
+    checkNicknameExists
 }
 
 //\c webtech to connect to the db 

@@ -12,7 +12,7 @@ export default function Login(props) {
         e.preventDefault();
         //Call the API to register the user
         try{
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch('http://localhost:5000/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',//conetent to be received is json object
@@ -27,7 +27,7 @@ export default function Login(props) {
                 localStorage.setItem('jwtToken', data.token);
                 //console.log(localStorage.getItem('jwtToken'));
                 setMessage('Login succesful!');//send a hyperlink through 'login'
-                props.history.push('/shortener');//must be the next page which is authenticated funcionality page
+                props.history.push('/authenticated-dashboard');//must be the next page which is authenticated funcionality page    
                 
             } else{
                 setMessage(data.message || 'An error occured during login');
