@@ -47,7 +47,7 @@ app.post('/api/register', async (req, res) => {//Register New User
     try{
     const {email, password, nickname} = req.body;
     
-    //check if username exists 
+    //check if email exists 
     const user = await pool.query(queries.checkEmailExists, [email]);    
     if (user.rows.length > 0){
         return res.status(400).json({ message : 'Email is already in use. Please choose another email.'});
@@ -94,6 +94,7 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
         const payload = {
           user: {
           id: user.rows[0].id,
+          nickname: user.rows[0].nickname,
           },
           };
           jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1h' }, (err, token) => {
@@ -213,11 +214,14 @@ app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by 
     });
 });
 
-app.post('/api/superhero-list', async (req, res) => {//Create a new list with a given name and superhero ID's; USED
-    const { listName, superheroIds } = req.body;
+//AUTHENTICATION NEEDED FOR ENDPOINTS BELOW ----------------------------------------------------------------
+
+app.post('/api/superhero-list', authenticate, async (req, res) => {//Create a list with listName, IDs, description, visibility; AUTH USED
+    const { listName, superheroIds, description, visibility } = req.body;
+    const userID = req.user.id;
     
     try {
-        await pool.query(queries.addList, [listName, superheroIds]);
+        await pool.query(queries.addList, [listName, superheroIds, description, visibility, userID]);
         res.status(201).send('List created successfully');
     } catch (error) {
         console.error('Error:', error.message);
@@ -225,24 +229,79 @@ app.post('/api/superhero-list', async (req, res) => {//Create a new list with a 
     }
 });
 
-//To get the actual thing I am looking for: list.rows[0].superhero_ids
-app.put('/api/superhero-list/:listName', async (req, res) => {//Save/Update superhero IDs to a given list name; TOBE USED 
-    const listName = req.params.listName;//I'll need the front end to encode this with a %20 for spaces
-    const { superheroIds } = req.body;
+app.delete('/api/superhero-list/:listName', authenticate, async (req, res) => {//DELETE: list with a given list name; AUTH USED
+    const listName = req.params.listName;
 
     try {
-        const list = await pool.query(queries.getList, [listName]);
-
-        if (!list) {
+        const result = await pool.query(queries.deleteList, [listName]);
+        
+        if (!result) {
             res.status(404).send('List not found');
             return;
         }
+        res.send('List deleted succesfully');
 
-        await pool.query(queries.updateList, [superheroIds, listName]);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error deleting list');
+    }
+});
+
+
+app.put('/api/superhero-list/:listName', authenticate, async (req, res) => {//UPDATE: IDs, description, visibility given a list name; AUTH USED
+    const listName = req.params.listName;//I'll need the front end to encode this with a %20 for spaces
+    const { superheroIds, description, visibility } = req.body;
+    const userId = req.user.id; // Extracted from the authenticated user
+
+    try {
+        const list = await pool.query(queries.getListWithUserId, [listName]);
+
+        if (!list || list.rows.length === 0) {
+            return res.status(404).send('List not found');
+        }
+
+         // Check if the authenticated user is the owner of the list
+        if (list.rows[0].user_id !== userId) {
+            return res.status(403).send('Unauthorized to update this list');
+        } 
+
+        await pool.query(queries.updateList, [superheroIds, description, visibility, listName]);
         res.send('List updated successfully');
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).send('Error updating list');
+    }
+})
+
+
+app.post('/api/reviews', authenticate, async (req, res) => {//CREATE: review of a listName with a rating and comment
+    const { listName, rating, comment } = req.body;
+    const userId = req.user.id; // Extracted from the authenticated user
+    const nickname = req.user.nickname; // Extracted from the authenticated user
+
+    try {
+        // Check if list exists and is public
+        const list = await pool.query(queries.getListWithUserId, [listName]);
+
+        if (!list || list.rows[0].length === 0) {
+            return res.status(404).send('List not found');
+        }
+
+        if (!list.rows[0].visibility) {
+            return res.status(403).send('This list is private');
+        }
+
+        // Validate rating
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).send('Invalid rating');
+        }
+
+        // Insert review into the database
+        await pool.query(queries.addReview, [listName, userId, rating, comment, nickname]);
+        res.status(201).send('Review added successfully');
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error adding review');
     }
 });
 
@@ -258,7 +317,6 @@ app.get('/api/superhero-list/:listName', async (req, res) => {//GET: id's from a
             return;
         }
 
-        //loop through list.rows[0].superhero_ids.length
         res.json(list.rows[0].superhero_ids);
     } catch (error) {
         console.error('Error:', error.message);
@@ -266,7 +324,7 @@ app.get('/api/superhero-list/:listName', async (req, res) => {//GET: id's from a
     }
 });
 
-app.get('/api/superhero-list-all/:listName', async (req, res) => {//GET: names, information and powers from a given list name; USED
+app.get('/api/superhero-list-all/:listName', async (req, res) => {//GET: names, information and powers from a given list name; UNUSED
     const listName = req.params.listName;
 
     try {
@@ -317,24 +375,6 @@ app.get('/api/superhero-list-all/:listName', async (req, res) => {//GET: names, 
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).send('Error fetching list');
-    }
-});
-
-app.delete('/api/superhero-list/:listName', async (req, res) => {//DELETE: list with a given list name
-    const listName = req.params.listName;
-
-    try {
-        const result = await pool.query(queries.deleteList, [listName]);
-        
-        if (!result) {
-            res.status(404).send('List not found');
-            return;
-        }
-        res.send('List deleted succesfully');
-
-    } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send('Error deleting list');
     }
 });
 
