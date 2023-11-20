@@ -1,6 +1,6 @@
-//Preview Image of the shortener 
 import React, {useState, useEffect} from 'react';
 import "./welcome.css";
+import HeroSearchForm from "./HeroSearchForm"; 
 
 
 export default function Welcome(props) {
@@ -27,28 +27,22 @@ export default function Welcome(props) {
     return (
     <div className="welcome-container">
         <div className="top-page-box">
-      <h1 className="welcome-title">Welcome to My URL Shortener</h1>
-      <p className="intro-text">This is a URL shortener project that helps you create 
-      shorter URLs for easy sharing and improved user experience.<br/><br/>
-      <b>Snippet of the shortener:</b>
-      </p>
+      <h1 className="welcome-title">Welcome to Lab4 of Webtech</h1>
       </div>
       <div className="about-me-box">
-        <h2>About Me and My Project</h2>
-        <p>Hi! My name is <b><i>James Morales</i></b> and I am a Software Engineering student with a passion for 
-            creating web applications that have a purpose tied to making my life and the lives of 
-            others easier. In this full-stack web application, I used a "PERN" stack back-end
-            which includes <b>Postgresql</b> for creating my database, <b>SQL</b> to interact 
-            with the database, <b>Express.js</b> to build my API, and <b>Node.js</b> to execute Javascript. For 
-            the front-end I used <b>React</b> as my JS framework and good ol' <b>Javascript</b>, 
-            <b>HTML</b> and <b>CSS</b>. <br/>
-            I hope you find this web app useful and please checkout my personals in the footer.
-            </p> <br/>
-            <br/>
-            <p>
-                If you would like to try this out, feel free to register, login and then start using 
-                the shortener. If you already have an account, simply login. 
-            </p>
+        <h2>About</h2>
+          <p>Hi! My name is <b><i>James Morales</i></b> and I am a Software Engineering student with a passion for 
+      developing innovative web applications. This project, a comprehensive superhero database, 
+      showcases a full-stack web application built using the "PERN" stack. The backend is powered 
+      by <b>PostgreSQL</b> for database management, <b>Express.js</b> for API development, and <b>Node.js</b> for server-side logic. 
+      The frontend leverages the dynamic capabilities of <b>React</b>, combined with traditional <b>JavaScript</b>, 
+      <b>HTML</b>, and <b>CSS</b>. This application allows users to explore a vast array of superheroes, 
+      manage personalized hero lists, and engage with a community through reviews and ratings. <br/><br/>
+      Dive into the world of heroes, discover their powers, origins, and publishers. You can start 
+      by searching for your favorite heroes or exploring public hero lists. If you wish to create 
+      your own lists and leave reviews, please register or log in. I hope this application provides 
+      an enjoyable and informative experience. Check out my personal links in the footer for more 
+      information and other projects.</p>
       </div>
       
       <div className="button-group">
@@ -58,6 +52,20 @@ export default function Welcome(props) {
         <button className="button login-button" onClick={handleLoginBtn}>
             Login Now
         </button>
+      </div>
+
+      {/* Hero Search Section */}
+      <div className="hero-search-section">
+          <h2>Explore Available Superheroes</h2>
+          <p>Search for heroes by name, race, power, or publisher.</p>
+          <HeroSearchForm />
+      </div>
+
+      {/* Public Hero Lists Section */}
+      <div className="public-hero-lists-section">
+          <h2>Public Hero Lists</h2>
+          <p>Discover curated lists of heroes created by our community.</p>
+          {/* Public Lists Display Component */}
       </div>
 
     </div>

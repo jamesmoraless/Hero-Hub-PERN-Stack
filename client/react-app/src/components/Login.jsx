@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 
 
 export default function Login(props) {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
 
@@ -12,12 +12,12 @@ export default function Login(props) {
         e.preventDefault();
         //Call the API to register the user
         try{
-            const response = await fetch('http://localhost:5000/api/v1/urlshortener/login', {
+            const response = await fetch('http://localhost:3000/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',//conetent to be received is json object
                 },
-                body: JSON.stringify({ username, password}),//must stringify both body fields
+                body: JSON.stringify({ email, password}),//must stringify both body fields
             });
             //console.log(response);
             const data = await response.json();//make the response into JSON in order to bring it to front end 
@@ -27,10 +27,10 @@ export default function Login(props) {
                 localStorage.setItem('jwtToken', data.token);
                 //console.log(localStorage.getItem('jwtToken'));
                 setMessage('Login succesful!');//send a hyperlink through 'login'
-                props.history.push('/shortener');
+                props.history.push('/shortener');//must be the next page which is authenticated funcionality page
                 
             } else{
-                setMessage(data.message || 'An error occured during registration');
+                setMessage(data.message || 'An error occured during login');
             }
         }catch(err){
             console.log('An error occured while calling the API.');
@@ -42,10 +42,10 @@ export default function Login(props) {
             <h2 className="login-title">Login Now :)</h2>
             <form className="login-form" onSubmit={handleSubmit}>
                 <input 
-                type = "username"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type = "email"
+                placeholder="myEmail@service.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 />
                 <input
