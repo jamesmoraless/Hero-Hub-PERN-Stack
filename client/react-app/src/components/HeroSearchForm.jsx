@@ -46,7 +46,7 @@ export default function HeroSearchForm() {
         });
     
         try {
-            const response = await fetch(`http://localhost:5000/api/search2.0?${queryParameters}`);//call the API {Will have to change this by removing before the /api when running npm run build and serving react app ass static files}
+            const response = await fetch(`http://localhost:5000/api/open/search2.0?${queryParameters}`);//call the API {Will have to change this by removing before the /api when running npm run build and serving react app ass static files}
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -137,9 +137,5 @@ export default function HeroSearchForm() {
 </div>
         </div>
     );
-    //Things left out:
-    //The beginning of each search should match the beginning of i.e. name, race, power and publisher inseatd of using backend includes()
-    //soft matching by trimming and ignoring minor spelling errors 
-    
 }
 

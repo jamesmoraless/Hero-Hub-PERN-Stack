@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
@@ -11,13 +12,17 @@ require('dotenv').config();
 //const {nanoid} = require('nanoid/non-secure');
 
 const app = express();
-const PORT = 3000;
+const PORT = 5000;
 
 // Use body-parser middleware to handle JSON requests
 app.use(bodyParser.json());
 
 // Serving static files from the client directory
 app.use(express.static(path.join(__dirname, '../client')));
+
+app.use(cors({
+    origin: 'http://localhost:3000'//must update when the front-end is deployed
+}));
 
 
   //authenticate the user (used in all methods)
@@ -113,59 +118,7 @@ app.post('/update-password', async (req, res) => {//Update Password
 });
 
 
-app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id; USED
-    const heroID = req.params.id;
-
-    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
-        if (err) return res.status(500).json({ error: 'Failed to read data' });
-
-        const superheroes = JSON.parse(data);
-        const hero = superheroes.find(h => h.id === parseInt(heroID));
-        //console.log(hero);
-
-        if (hero) {
-            res.json(hero);//sends and ends request in JSON format
-        } else {
-            res.status(404).json({ error: 'Hero not found' });
-        }
-    });
-});
-
-app.get('/api/powers/:id', (req, res) => {//GET: superhero_powers for a given id; USED
-    fs.readFile('superhero_info.json', 'utf8', (err, heroData) => {
-        if (err) return res.status(500).json({ error: 'Failed to read superhero data' });
-
-        const superheroes = JSON.parse(heroData);
-        const superhero = superheroes.find(hero => hero.id.toString() === req.params.id);
-
-        if (!superhero) return res.status(404).json({ error: 'Superhero not found' });
-
-        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
-            if (err) return res.status(500).json({ error: 'Failed to read powers data' });
-
-            const powersList = JSON.parse(powersData);
-            const heroPowers = powersList.find(hero => hero.hero_names === superhero.name);
-
-            if (!heroPowers) return res.status(404).json({ error: 'Superhero powers not found' });
-
-            const truePowers = Object.keys(heroPowers).filter(key => heroPowers[key] === "True");
-            res.json({ powers: truePowers });
-        });
-    });
-});
-
-app.get('/api/publishers', (req, res) => {//GET: all publishers 
-    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
-        if (err) return res.status(500).json({ error: 'Failed to read data' });
-
-        const superheroes = JSON.parse(data);
-        const publishers = [...new Set(superheroes.map(hero => hero.Publisher))];
-
-        res.json({ publishers });
-    });
-});
-
-app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power; USED
+app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power; USED
     const { name, race, publisher, power, n } = req.query;
 
     fs.readFile('superhero_info.json', 'utf8', (err, data) => {
@@ -174,157 +127,78 @@ app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by 
         }
 
         let superheroes = JSON.parse(data);
+        const formatString = (str) => str.trim().replace(/\s+/g, '').toLowerCase();
+
 
         if (name) {
-            superheroes = superheroes.filter(hero => hero.name && hero.name.toLowerCase().includes(name.toLowerCase()));
+            const formattedName = formatString(name);
+            superheroes = superheroes.filter(hero => hero.name && formatString(hero.name).startsWith(formattedName));
         }
 
         if (race) {
-            superheroes = superheroes.filter(hero => hero.Race && hero.Race.toLowerCase() === race.toLowerCase());
+            const formattedRace = formatString(race);
+            superheroes = superheroes.filter(hero => hero.Race && formatString(hero.Race).startsWith(formattedRace));
         }
 
         if (publisher) {
-            superheroes = superheroes.filter(hero => hero.Publisher && hero.Publisher.toLowerCase() === publisher.toLowerCase());
+            const formattedPublisher = formatString(publisher);
+            superheroes = superheroes.filter(hero => hero.Publisher && formatString(hero.Publisher).startsWith(formattedPublisher));
         }
 
-        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
+        // read superhero powers
+        fs.readFile('superhero_powers.json', 'utf8', (err, superheroPowersData) => {
             if (err) {
-                return res.status(500).json({ error: 'Failed to read superhero powers' });
+                console.error('Error reading superhero powers:', err);
+                return res.status(500).send('Error reading superhero powers');
             }
 
-            let powers = JSON.parse(powersData);
+            const powersList = JSON.parse(superheroPowersData);
 
-            if (power) {
-                superheroes = superheroes.filter(hero => {
-                    let heroPowers = powers.find(p => p.hero_names === hero.name);
-                    return heroPowers && heroPowers[power] === "True";
-                });
-            }
-
-            // Convert the filtered superheroes array to an array of IDs only
-            let superheroIds = superheroes.map(hero => hero.id);
+            // Combine hero info with their powers
+            const heroesWithPowers = superheroes.map(hero => {
+                const heroPowers = powersList.find(p => p.hero_names === hero.name);
+                return {
+                    ...hero,
+                    powers: heroPowers ? Object.keys(heroPowers).filter(key => heroPowers[key] === "True") : []
+                };
+            });
 
             // Slicing the superhero IDs array based on n
             if (n) {
-                superheroIds = superheroIds.slice(0, parseInt(n));
+                finalheroes = heroesWithPowers.slice(0, parseInt(n));
             }
 
-            res.json(superheroIds);
+            // Send the combined data
+            res.json({ heroes: finalheroes });
         });
     });
 });
 
-//AUTHENTICATION NEEDED FOR ENDPOINTS BELOW ----------------------------------------------------------------
 
-app.post('/api/superhero-list', authenticate, async (req, res) => {//Create a list with listName, IDs, description, visibility; AUTH USED
-    const { listName, superheroIds, description, visibility } = req.body;
-    const userID = req.user.id;
-    
+app.get('/api/open/public-hero-lists', async (req, res) => {//GET: public list info when opening the application; USED
     try {
-        await pool.query(queries.addList, [listName, superheroIds, description, visibility, userID]);
-        res.status(201).send('List created successfully');
+        const publicLists = await pool.query(queries.getPublicHeroLists); // Query to fetch public lists
+
+        const processedLists = publicLists.rows.map(list => {
+            return {
+                name: list.name,
+                creatorNickname: list.nickname, 
+                numberOfHeroes: list.superhero_ids.length,
+                averageRating: list.average_rating, 
+                lastModified: list.last_edited,
+                description: list.description
+            };
+        }).sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)) // Sort by last modified date
+          .slice(0, 10); // Limit to 10 lists
+
+        res.json({ lists: processedLists });
     } catch (error) {
         console.error('Error:', error.message);
-        res.status(500).send('Error creating list');
+        res.status(500).send('Error fetching public hero lists');
     }
 });
 
-app.delete('/api/superhero-list/:listName', authenticate, async (req, res) => {//DELETE: list with a given list name; AUTH USED
-    const listName = req.params.listName;
-
-    try {
-        const result = await pool.query(queries.deleteList, [listName]);
-        
-        if (!result) {
-            res.status(404).send('List not found');
-            return;
-        }
-        res.send('List deleted succesfully');
-
-    } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send('Error deleting list');
-    }
-});
-
-
-app.put('/api/superhero-list/:listName', authenticate, async (req, res) => {//UPDATE: IDs, description, visibility given a list name; AUTH USED
-    const listName = req.params.listName;//I'll need the front end to encode this with a %20 for spaces
-    const { superheroIds, description, visibility } = req.body;
-    const userId = req.user.id; // Extracted from the authenticated user
-
-    try {
-        const list = await pool.query(queries.getListWithUserId, [listName]);
-
-        if (!list || list.rows.length === 0) {
-            return res.status(404).send('List not found');
-        }
-
-         // Check if the authenticated user is the owner of the list
-        if (list.rows[0].user_id !== userId) {
-            return res.status(403).send('Unauthorized to update this list');
-        } 
-
-        await pool.query(queries.updateList, [superheroIds, description, visibility, listName]);
-        res.send('List updated successfully');
-    } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send('Error updating list');
-    }
-})
-
-
-app.post('/api/reviews', authenticate, async (req, res) => {//CREATE: review of a listName with a rating and comment
-    const { listName, rating, comment } = req.body;
-    const userId = req.user.id; // Extracted from the authenticated user
-    const nickname = req.user.nickname; // Extracted from the authenticated user
-
-    try {
-        // Check if list exists and is public
-        const list = await pool.query(queries.getListWithUserId, [listName]);
-
-        if (!list || list.rows[0].length === 0) {
-            return res.status(404).send('List not found');
-        }
-
-        if (!list.rows[0].visibility) {
-            return res.status(403).send('This list is private');
-        }
-
-        // Validate rating
-        if (!rating || rating < 1 || rating > 5) {
-            return res.status(400).send('Invalid rating');
-        }
-
-        // Insert review into the database
-        await pool.query(queries.addReview, [listName, userId, rating, comment, nickname]);
-        res.status(201).send('Review added successfully');
-    } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send('Error adding review');
-    }
-});
-
-//get list id's given a list name 
-app.get('/api/superhero-list/:listName', async (req, res) => {//GET: id's from a list given the list name; UNUSED
-    const listName = req.params.listName;
-
-    try {
-        const list = await pool.query(queries.getList, [listName]);
-        
-        if (!list) {
-            res.status(404).send('List not found');
-            return;
-        }
-
-        res.json(list.rows[0].superhero_ids);
-    } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send('Error fetching list');
-    }
-});
-
-app.get('/api/superhero-list-all/:listName', async (req, res) => {//GET: names, information and powers from a given list name; UNUSED
+app.get('/api/open/public-hero-lists/:listName', async (req, res) => {//GET: names, information and powers from a given list name; 
     const listName = req.params.listName;
 
     try {
@@ -377,6 +251,231 @@ app.get('/api/superhero-list-all/:listName', async (req, res) => {//GET: names, 
         res.status(500).send('Error fetching list');
     }
 });
+
+
+//AUTHENTICATION NEEDED FOR ENDPOINTS BELOW ----------------------------------------------------------------
+
+app.post('/api/secure/superhero-list', authenticate, async (req, res) => {//Create a list with listName, IDs, description, visibility; AUTH USED
+    const { listName, superheroIds, description, visibility } = req.body;
+    const userID = req.user.id;
+    
+    try {
+        await pool.query(queries.addList, [listName, superheroIds, description, visibility, userID]);
+        res.status(201).send('List created successfully');
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error creating list');
+    }
+});
+
+app.delete('/api/secure/superhero-list/:listName', authenticate, async (req, res) => {//DELETE: list with a given list name; AUTH USED
+    const listName = req.params.listName;
+    const userId = req.user.id; // Extracted from the authenticated user
+
+    try {
+        const list = await pool.query(queries.getListWithUserId, [listName]);
+
+        if (!list || list.rows[0].length === 0) {
+            res.status(404).send('List not found');
+            return;
+        }
+         // Check if the authenticated user is the owner of the list
+         if (list.rows[0].user_id !== userId) {
+            return res.status(403).send('Unauthorized to update this list');
+        }
+        await pool.query("DELETE FROM reviews WHERE name = $1", [listName]);
+        await pool.query(queries.deleteList, [listName]);
+
+        res.send('List deleted succesfully');
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error deleting list');
+    }
+});
+
+
+app.put('/api/secure/superhero-list/:listName', authenticate, async (req, res) => {//UPDATE: IDs, description, visibility given a list name; AUTH USED
+    const listName = req.params.listName;
+    const { superheroIds, description, visibility } = req.body;
+    const userId = req.user.id; // Extracted from the authenticated user
+
+    try {
+        const list = await pool.query(queries.getListWithUserId, [listName]);
+
+        if (!list || list.rows[0].length === 0) {
+            return res.status(404).send('List not found');
+        }
+
+         // Check if the authenticated user is the owner of the list
+        if (list.rows[0].user_id !== userId) {
+            return res.status(403).send('Unauthorized to update this list');
+        } 
+
+        await pool.query(queries.updateList, [superheroIds, description, visibility, listName]);
+        res.send('List updated successfully');
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error updating list');
+    }
+})
+
+
+app.post('/api/secure/reviews', authenticate, async (req, res) => {//CREATE: review of a listName with a rating and comment
+    const { listName, rating, comment } = req.body;
+    const userId = req.user.id; // Extracted from the authenticated user
+    const nickname = req.user.nickname; // Extracted from the authenticated user
+
+    try {
+        // Check if list exists and is public
+        const list = await pool.query(queries.getListWithUserId, [listName]);
+
+        if (!list || list.rows[0].length === 0) {
+            return res.status(404).send('List not found');
+        }
+
+        if (!list.rows[0].visibility) {
+            return res.status(403).send('This list is private');
+        }
+
+        // Validate rating
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).send('Invalid rating');
+        }
+
+        // Insert review into the database
+        await pool.query(queries.addReview, [listName, userId, rating, comment, nickname]);
+        res.status(201).send('Review added successfully');
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error adding review');
+    }
+});
+
+//UNUSED ----------------------------------------------------------------------------------------------------
+
+app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id; 
+    const heroID = req.params.id;
+
+    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Failed to read data' });
+
+        const superheroes = JSON.parse(data);
+        const hero = superheroes.find(h => h.id === parseInt(heroID));
+        //console.log(hero);
+
+        if (hero) {
+            res.json(hero);//sends and ends request in JSON format
+        } else {
+            res.status(404).json({ error: 'Hero not found' });
+        }
+    });
+});
+
+app.get('/api/powers/:id', (req, res) => {//GET: superhero_powers for a given id; 
+    fs.readFile('superhero_info.json', 'utf8', (err, heroData) => {
+        if (err) return res.status(500).json({ error: 'Failed to read superhero data' });
+
+        const superheroes = JSON.parse(heroData);
+        const superhero = superheroes.find(hero => hero.id.toString() === req.params.id);
+
+        if (!superhero) return res.status(404).json({ error: 'Superhero not found' });
+
+        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
+            if (err) return res.status(500).json({ error: 'Failed to read powers data' });
+
+            const powersList = JSON.parse(powersData);
+            const heroPowers = powersList.find(hero => hero.hero_names === superhero.name);
+
+            if (!heroPowers) return res.status(404).json({ error: 'Superhero powers not found' });
+
+            const truePowers = Object.keys(heroPowers).filter(key => heroPowers[key] === "True");
+            res.json({ powers: truePowers });
+        });
+    });
+});
+
+app.get('/api/publishers', (req, res) => {//GET: all publishers 
+    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Failed to read data' });
+
+        const superheroes = JSON.parse(data);
+        const publishers = [...new Set(superheroes.map(hero => hero.Publisher))];
+
+        res.json({ publishers });
+    });
+});
+
+
+//get list id's given a list name 
+app.get('/api/superhero-list/:listName', async (req, res) => {//GET: id's from a list given the list name; UNUSED
+    const listName = req.params.listName;
+
+    try {
+        const list = await pool.query(queries.getList, [listName]);
+        
+        if (!list) {
+            res.status(404).send('List not found');
+            return;
+        }
+
+        res.json(list.rows[0].superhero_ids);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error fetching list');
+    }
+});
+
+
+app.get('/api/search', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power; USED
+    const { name, race, publisher, power, n } = req.query;
+
+    fs.readFile('superhero_info.json', 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: `Failed to read superhero data ${err.message}` });
+        }
+
+        let superheroes = JSON.parse(data);
+
+        if (name) {
+            superheroes = superheroes.filter(hero => hero.name && hero.name.toLowerCase().includes(name.toLowerCase()));
+        }
+
+        if (race) {
+            superheroes = superheroes.filter(hero => hero.Race && hero.Race.toLowerCase() === race.toLowerCase());
+        }
+
+        if (publisher) {
+            superheroes = superheroes.filter(hero => hero.Publisher && hero.Publisher.toLowerCase() === publisher.toLowerCase());
+        }
+
+        fs.readFile('superhero_powers.json', 'utf8', (err, powersData) => {
+            if (err) {
+                return res.status(500).json({ error: 'Failed to read superhero powers' });
+            }
+
+            let powers = JSON.parse(powersData);
+
+            if (power) {
+                superheroes = superheroes.filter(hero => {
+                    let heroPowers = powers.find(p => p.hero_names === hero.name);
+                    return heroPowers && heroPowers[power] === "True";
+                });
+            }
+
+            // Convert the filtered superheroes array to an array of IDs only
+            let superheroIds = superheroes.map(hero => hero.id);
+
+            // Slicing the superhero IDs array based on n
+            if (n) {
+                superheroIds = superheroIds.slice(0, parseInt(n));
+            }
+
+            res.json(superheroIds);
+        });
+    });
+});
+
 
 app.get('/api/all-superhero-lists', async (req, res) => {//USED to populate all hero lists (Additional get request)
     try {

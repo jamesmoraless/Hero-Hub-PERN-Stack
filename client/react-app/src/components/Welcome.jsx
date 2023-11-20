@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import "./welcome.css";
 import HeroSearchForm from "./HeroSearchForm"; 
+import PublicLists from './PublicLists';
 
 
 export default function Welcome(props) {
@@ -54,18 +55,17 @@ export default function Welcome(props) {
         </button>
       </div>
 
-      {/* Hero Search Section */}
       <div className="hero-search-section">
           <h2>Explore Available Superheroes</h2>
           <p>Search for heroes by name, race, power, or publisher.</p>
           <HeroSearchForm />
       </div>
 
-      {/* Public Hero Lists Section */}
+      
       <div className="public-hero-lists-section">
           <h2>Public Hero Lists</h2>
-          <p>Discover curated lists of heroes created by our community.</p>
-          {/* Public Lists Display Component */}
+          <p>Discover lists of heroes created by other users.</p>
+          <PublicLists />
       </div>
 
     </div>
