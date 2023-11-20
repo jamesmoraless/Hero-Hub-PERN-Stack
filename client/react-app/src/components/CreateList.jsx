@@ -55,6 +55,10 @@ export default function CreateList(props) {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
+            props.refreshLists(); //refresh the list
+            
+            setMessage('List created successfully');
+            
 
             alert('List created successfully');//might wan to clear form fields once the list is created 
             clearResults();

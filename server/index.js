@@ -358,6 +358,83 @@ app.post('/api/secure/reviews', authenticate, async (req, res) => {//CREATE: rev
     }
 });
 
+app.get('/api/secure/my-hero-lists/:listName', authenticate, async (req, res) => {//GET: names, information and powers from a given list name; 
+    const listName = req.params.listName;
+
+    try {
+        const list = await pool.query(queries.getList, [listName]);
+        
+        if (!list || list.rowCount === 0) {
+            res.status(404).send('List not found');
+            return;
+        }
+
+        // Retrieve the IDs from the list
+        const superheroIds = list.rows[0].superhero_ids; 
+
+        // read superhero info
+        fs.readFile('superhero_info.json', 'utf8', (err, superheroInfoData) => {
+            if (err) {
+                console.error('Error reading superhero info:', err);
+                return res.status(500).send('Error reading superhero data');
+            }
+
+            const superheroes = JSON.parse(superheroInfoData);
+
+            // Filter superheroes based on IDs from the list
+            const filteredHeroes = superheroes.filter(hero => superheroIds.includes(hero.id));
+
+            // read superhero powers
+            fs.readFile('superhero_powers.json', 'utf8', (err, superheroPowersData) => {
+                if (err) {
+                    console.error('Error reading superhero powers:', err);
+                    return res.status(500).send('Error reading superhero powers');
+                }
+
+                const powersList = JSON.parse(superheroPowersData);
+
+                // Combine hero info with their powers
+                const heroesWithPowers = filteredHeroes.map(hero => {
+                    const heroPowers = powersList.find(p => p.hero_names === hero.name);
+                    return {
+                        ...hero,
+                        powers: heroPowers ? Object.keys(heroPowers).filter(key => heroPowers[key] === "True") : []
+                    };
+                });
+
+                // Send the combined data
+                res.json({ heroes: heroesWithPowers });
+            });
+        });
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error fetching list');
+    }
+});
+
+app.get('/api/secure/my-hero-lists', authenticate, async (req, res) => {//GET: my list info when opening the application; USED
+    const userId = req.user.id; // Extracted from the authenticated user
+    try {
+        const myLists = await pool.query(queries.getMyHeroLists, [userId]); // Query to fetch public lists
+
+        const processedLists = myLists.rows.map(list => {
+            return {
+                name: list.name,
+                creatorNickname: list.nickname, 
+                numberOfHeroes: list.superhero_ids.length,
+                averageRating: list.average_rating, 
+                lastModified: list.last_edited,
+                description: list.description
+            };
+        }).sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)) // Sort by last modified date
+          .slice(0, 10); // Limit to 10 lists
+
+        res.json({ lists: processedLists });
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error fetching public hero lists');
+    }
+});
 //UNUSED ----------------------------------------------------------------------------------------------------
 
 app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id; 

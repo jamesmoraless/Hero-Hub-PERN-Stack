@@ -2,48 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import PublicLists from './PublicLists';
 import CreateList from './CreateList';
+import MyLists from './MyLists';
 
 
 
-function AuthenticatedUserDashboard(props) {
-    const [lists, setLists] = useState([]);
-    const [reviews, setReviews] = useState([]);
-    
-    useEffect(() => {
-        // Function to fetch lists
-        const fetchLists = async () => {
-            // Implement fetch logic using '/api/secure/superhero-list' endpoint
-        };
-    
-        // Function to fetch reviews
-        const fetchReviews = async () => {
-            // Implement fetch logic
-        };
-    
-        fetchLists();
-        fetchReviews();
-    }, []);
-    
+export default function AuthenticatedUserDashboard(props) {
+    const [listsKey, setListsTableKey] = useState(0); // state to keep track of key for ListTable component
+
+    const refreshLists = () => {
+        setListsTableKey(listsKey + 1); // update key to trigger re-render of UrlTable component
+    };
     return (
         <div className="authenticated-dashboard">
             <h2>Authenticated User Dashboard</h2>
-                <CreateList />
+                <CreateList refreshLists={refreshLists} />
+                <h3>View Your Lists</h3>
+                <MyLists key={listsKey}/>
             {/* Components for various functionalities */}
-            <div className="lists-container">
-            {lists.map(list => (
-                <div key={list.id}>
-                    {/* Display list details */}
-                    {/* Buttons or links for edit, delete, and view/add reviews */}
-                </div>
-            ))}
-        </div>
-
-            <div className="reviews-container">
-                {/* Render reviews here */}
-            </div>
-
+            
         </div>
     );
 }
-
-export default withRouter(AuthenticatedUserDashboard);
