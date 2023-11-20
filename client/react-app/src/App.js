@@ -2,7 +2,7 @@ import Welcome from "./components/Welcome";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Switch, Route, Router } from 'react-router-dom';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
 
 
 function App() {

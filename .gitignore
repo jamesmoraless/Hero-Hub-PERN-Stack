@@ -1,2 +1,4 @@
 superhero_powers.json
 superhero_info.json
+.env
+node_modules

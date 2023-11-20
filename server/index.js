@@ -4,6 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const pool = require('./db');
 const queries = require('./queries');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { isEmail } = require('validator');
+require('dotenv').config();
+//const {nanoid} = require('nanoid/non-secure');
 
 const app = express();
 const PORT = 3000;
@@ -13,6 +18,99 @@ app.use(bodyParser.json());
 
 // Serving static files from the client directory
 app.use(express.static(path.join(__dirname, '../client')));
+
+
+  //authenticate the user (used in all methods)
+  const authenticate = (req, res, next) => {
+    const token = req.header('x-auth-token');
+    if (!token) return res.status(401).json({ message: 'No token, autorization failed.'});
+
+    try{
+      const decoded = jwt.verify(token, process.env.SECRET_KEY);
+      req.user = decoded.user;
+      next();
+    } catch (err){
+      res.status(401).json({ message: 'Invalid token.'});
+    }
+  };
+
+app.get('/', async (req, res) => {//should get this when opening the react app 
+    res.send("Hey there");
+});
+
+
+app.post('/api/register', async (req, res) => {//Register New User
+    if (!isEmail(req.body.email)) {
+        return res.status(400).send('Invalid email format.');
+    }
+
+    try{
+    const {email, password, nickname} = req.body;
+    
+    //check if username exists 
+    const user = await pool.query(queries.checkEmailExists, [email]);    
+    if (user.rows.length > 0){
+        return res.status(400).json({ message : 'Email is already in use. Please choose another email.'});
+      }
+    
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    //add user to db IF email does not exist 
+    const newUser = await pool.query(queries.addUser, [email, hashedPassword, nickname]);
+    res.status(201).json(newUser.rows[0]);//I want this to then send you to a new page that welcomes you 
+    //and then allows you to have extra functionalities  
+    
+}catch (err){
+      console.error(err.message);
+      res.status(500).send('Server error.');
+}
+});
+
+app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
+    try{
+        const {email, password} = req.body; 
+      
+        //check if email exists 
+        const user = await pool.query(queries.checkEmailExists, [email]); 
+        
+        if (user.rows.length === 0){
+          return res.status(400).json({ message : 'Invalid Email. Try again.'});
+        }
+
+        // Check if account is disabled
+        if (user.rows[0].isDisabled) {
+            return res.status(403).send('Account is disabled. Please contact the site administrator.');
+        }
+      
+        // Check if password matches
+        const isMatch = await bcrypt.compare(password, user.rows[0].password);
+        if (!isMatch) {
+          return res.status(400).json({ message: 'Invalid password. Try again.' });
+        }
+      
+        // Generate and return JWT
+        const payload = {
+          user: {
+          id: user.rows[0].id,
+          },
+          };
+          jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1h' }, (err, token) => {
+            if (err) throw err;
+            res.json({ token });
+          });} catch (err) {
+          console.error(err.message);
+          res.status(500).send('Server error.');
+          }
+});
+
+
+app.post('/update-password', async (req, res) => {//Update Password
+    // Verify user authentication
+    // Allow them to update password
+});
+
 
 app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id; USED
     const heroID = req.params.id;

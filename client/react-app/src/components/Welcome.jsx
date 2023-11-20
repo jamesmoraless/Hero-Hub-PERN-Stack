@@ -50,6 +50,7 @@ export default function Welcome(props) {
                 the shortener. If you already have an account, simply login. 
             </p>
       </div>
+      
       <div className="button-group">
         <button className="button register-button" onClick={handleRegisterBtn}>
             Register Now
@@ -57,14 +58,7 @@ export default function Welcome(props) {
         <button className="button login-button" onClick={handleLoginBtn}>
             Login Now
         </button>
-        
       </div>
-
-      <div className="foot-container">
-    <a className="word" href='https://github.com/jamesmoraless' target='_blank'>GitHub</a>
-    <a className="word" href='https://jamesmoraless.github.io' target='_blank'>Personal Website</a>
-    <a className="word" href='https://www.linkedin.com/in/james-morales-470a161b2/' target='_blank'>LinkedIn</a>
-    </div>
 
     </div>
         

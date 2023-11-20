@@ -1,6 +1,10 @@
 const Pool = require('pg').Pool;
+const dotenv = require('dotenv');
 
-const pool = new Pool({ connectionString: 'postgres://postgres:Williamandoraul1$@localhost:5433/webtech' });
+dotenv.config();
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
 
 module.exports = pool;
 
