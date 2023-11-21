@@ -45,7 +45,13 @@ export default function PublicLists() {
             {lists.map(list => (
                 <div key={list.id} className="public-list">
                     <h3>{list.name}</h3>
-                    <p>Created at: {list.lastModified}</p>
+                    <p>Last Edit: {new Date(list.lastModified).toLocaleDateString("en-US", { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })}</p>
                     <p>Created by: {list.creatorNickname}</p>
                     <p>Number of Heroes: {list.numberOfHeroes}</p>
                     <p>Average Rating: {list.averageRating}</p>

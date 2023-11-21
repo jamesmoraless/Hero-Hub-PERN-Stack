@@ -424,7 +424,8 @@ app.get('/api/secure/my-hero-lists', authenticate, async (req, res) => {//GET: m
                 numberOfHeroes: list.superhero_ids.length,
                 averageRating: list.average_rating, 
                 lastModified: list.last_edited,
-                description: list.description
+                description: list.description,
+                visibility: list.visibility
             };
         }).sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)) // Sort by last modified date
           .slice(0, 10); // Limit to 10 lists

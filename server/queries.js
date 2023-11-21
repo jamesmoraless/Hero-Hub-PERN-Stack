@@ -43,6 +43,7 @@ const getMyHeroLists = `
         hl.last_edited, 
         hl.description, 
         hl.superhero_ids,
+        hl.visibility,
         u.nickname, 
         ROUND(AVG(r.rating)::numeric, 1) AS average_rating
     FROM 

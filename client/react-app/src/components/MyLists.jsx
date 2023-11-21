@@ -1,36 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import './mylists.css'; // Create and import your CSS file for styling
+import EditLists from './EditLists';
 
 export default function MyLists() {
+    const [editingList, setEditingList] = useState(null); // State to track which list is being edited
     const [lists, setLists] = useState([]);
     const [expandedListName, setExpandedListName] = useState(null);
     const [heroDetails, setHeroDetails] = useState({});
 
-    
+    const handleEditClick = (list) => {
+        setEditingList(list); // Set the current list to be edited
+    };
     
 
-    useEffect(() => {
-        const fetchLists = async () => {
-            try {
-                const token = localStorage.getItem('jwtToken');
-                const response = await fetch('http://localhost:5000/api/secure/my-hero-lists', {
-                    headers: {
-                        'x-auth-token': token // Include the JWT token
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const data = await response.json();
-                setLists(data.lists);
-            } catch (error) {
-                console.error('Error fetching my hero lists:', error);
-            }
-        };
-        
-
+    useEffect(() => {        
         fetchLists();
     }, []);
+
+    const fetchLists = async () => {
+        try {
+            const token = localStorage.getItem('jwtToken');
+            const response = await fetch('http://localhost:5000/api/secure/my-hero-lists', {
+                headers: {
+                    'x-auth-token': token // Include the JWT token
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            setLists(data.lists);
+        } catch (error) {
+            console.error('Error fetching my hero lists:', error);
+        }
+    };
+    
 
 
     const fetchHeroDetails = async (listName) => {
@@ -53,13 +57,37 @@ export default function MyLists() {
 
     return (
         <div className="my-lists-container">
+            
+            {editingList && (
+                        <EditLists 
+                            listName={editingList.name}
+                            existingDescription={editingList.description}
+                            existingSuperheroIds={editingList.superheroIds}
+                            existingVisibility={editingList.visibility}
+                            onListUpdated={() => {
+                                setEditingList(null); // Hide component after update
+                                fetchLists()// Refresh lists 
+                            }}
+                        />
+                    )}
+            
             {lists.map(list => (
                 <div key={list.id} className="my-list">
                     <h3>{list.name}</h3>
-                    <p>Created at: {list.lastModified}</p>
+                    <p>Last Edit: {new Date(list.lastModified).toLocaleDateString("en-US", { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })}</p>
                     <p>Created by: {list.creatorNickname}</p>
                     <p>Number of Heroes: {list.numberOfHeroes}</p>
-                    <p>Average Rating: {list.averageRating}</p>
+                    <p>Average Rating: {list.averageRating != null ? list.averageRating : 'None'}</p>
+                    <p>Visibility: {list.visibility ? 'Public' : 'Private'}</p>
+
+
+                    <button onClick={() => setEditingList(list)}>Edit List</button>
 
                     <button onClick={() => fetchHeroDetails(list.name) && setExpandedListName(list.name === expandedListName ? null : list.name)}>
                         {expandedListName === list.name ? 'Hide Details' : 'Show Details'}
