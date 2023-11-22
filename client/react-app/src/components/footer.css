@@ -1,0 +1,21 @@
+.footer-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 20px;
+    background-color: #333; /* Dark background for the footer */
+    color: white;
+    width: 100%;
+}
+
+.footer-link {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.footer-link:hover {
+    color: #ddd;
+    text-decoration: underline;
+}

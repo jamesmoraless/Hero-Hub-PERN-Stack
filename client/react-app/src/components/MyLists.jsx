@@ -65,29 +65,6 @@ export default function MyLists() {
     return (
         <div className="my-lists-container">
 
-            {deletingList && (
-                        <DeleteList 
-                            listName={deletingList.name}
-                            onListUpdated={() => {
-                                setDeleteList(null); // Hide component after update
-                                fetchLists()// Refresh lists 
-                            }}
-                        />
-                    )}
-            
-            {editingList && (
-                        <EditLists 
-                            listName={editingList.name}
-                            existingDescription={editingList.description}
-                            existingSuperheroIds={editingList.superheroIds}
-                            existingVisibility={editingList.visibility}
-                            onListUpdated={() => {
-                                setEditingList(null); // Hide component after update
-                                fetchLists()// Refresh lists 
-                            }}
-                        />
-                    )}
-            
             {lists.map(list => (
                 <div key={list.id} className="my-list">
                     <h3>{list.name}</h3>
@@ -103,10 +80,9 @@ export default function MyLists() {
                     <p>Average Rating: {list.averageRating != null ? list.averageRating : 'None'}</p>
                     <p>Visibility: {list.visibility ? 'Public' : 'Private'}</p>
 
-
-                    <button onClick={() => setEditingList(list)}>Edit List</button>
+                    <button href="#edit-list-container" onClick={() => handleEditClick(list)}>Edit List</button>
                     
-                    <button onClick={() => setDeleteList(list)}>Delete</button>
+                    <button href="#delete-list-container" onClick={() => handleDeleteClick(list)}>Delete</button>
 
                     <button onClick={() => fetchHeroDetails(list.name) && setExpandedListName(list.name === expandedListName ? null : list.name)}>
                         {expandedListName === list.name ? 'Hide Details' : 'Show Details'}
@@ -133,6 +109,29 @@ export default function MyLists() {
                         </div>
                     )}
 
+                    {editingList && (
+                        <EditLists 
+                            listName={editingList.name}
+                            existingDescription={editingList.description}
+                            existingSuperheroIds={editingList.superheroIds}
+                            existingVisibility={editingList.visibility}
+                            onListUpdated={() => {
+                                setEditingList(null); // Hide component after update
+                                fetchLists()// Refresh lists 
+                            }}
+                        />
+                    )}
+
+                    {deletingList && (
+                        <DeleteList 
+                            listName={deletingList.name}
+                            onListUpdated={() => {
+                                setDeleteList(null); // Hide component after update
+                                fetchLists()// Refresh lists 
+                            }}
+                        />
+                    )}
+
                 </div>
             ))}
         </div>
@@ -141,4 +140,5 @@ export default function MyLists() {
 
 
 //Currently, I'm not showing the comments from reivews but I'm showing everything else 
-//So maybe, I'll add comments below every lsit by fetching comments
+//So maybe, I'll add comments below every list by fetching comments, rating nickname
+//I'll make this a sepereate component where I can render comments under each MyList, MyPublicList, PublicList

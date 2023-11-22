@@ -2,9 +2,9 @@ import Welcome from "./components/Welcome";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import AuthenticatedUserDashboard from "./components/AuthenticatedUserDashboard";
+import PasswordUpdate from "./components/PasswordUpdate";
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-
 
 function App() {
   return (
@@ -14,6 +14,8 @@ function App() {
               <Route exact path='/register' component={Register} />
               <Route path='/login' component={Login} />
               <Route path='/authenticated-dashboard' component={AuthenticatedUserDashboard} />
+              <Route path='/passwordUpdate' component={PasswordUpdate} />
+
           </Switch>
         </BrowserRouter> 
   );

@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import "./welcome.css";
 import HeroSearchForm from "./HeroSearchForm"; 
 import PublicLists from './PublicLists';
+import Footer from './Footer';
 
 
 export default function Welcome(props) {
@@ -67,6 +68,7 @@ export default function Welcome(props) {
           <p>Discover lists of heroes created by other users.</p>
           <PublicLists />
       </div>
+      <Footer />
 
     </div>
         

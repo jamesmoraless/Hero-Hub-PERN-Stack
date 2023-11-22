@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MyPublicLists from './MyPublicLists';
 import CreateList from './CreateList';
 import MyLists from './MyLists';
+import Footer from './Footer';
 
 
 
@@ -19,7 +20,7 @@ export default function AuthenticatedUserDashboard(props) {
                 <MyLists key={listsKey}/>
                 <h3>View Community's Public Lists</h3>
                 <MyPublicLists refreshLists={refreshLists} />
-            {/* Components for various functionalities */}
+                <Footer />
             
         </div>
     );

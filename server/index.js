@@ -118,10 +118,30 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
 });
 
 
-app.post('/update-password', async (req, res) => {//Update Password
-    // Verify user authentication
-    // Allow them to update password
+app.post('/api/update-password', authenticate, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { newPassword } = req.body;
+
+        // Validate the new password
+        if (newPassword<1) {
+            return res.status(400).send('Enter a valid password.');
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update the user's password in the database
+        await pool.query(queries.updatePassword, [hashedPassword, userId]);
+
+        res.send('Password updated successfully.');
+    } catch (error) {
+        console.error('Error updating password:', error);
+        res.status(500).send('Error updating password.');
+    }
 });
+
 
 
 app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power; USED
@@ -434,7 +454,8 @@ app.get('/api/secure/my-hero-lists', authenticate, async (req, res) => {//GET: m
                 averageRating: list.average_rating, 
                 lastModified: list.last_edited,
                 description: list.description,
-                visibility: list.visibility
+                visibility: list.visibility,
+                superheroIds: list.superhero_ids,
             };
         }).sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)) // Sort by last modified date
           .slice(0, 10); // Limit to 10 lists

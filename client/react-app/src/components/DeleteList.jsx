@@ -46,7 +46,7 @@ export default function DeleteList({ listName, onListUpdated }) {
     const handleCancel = () => {
         setMessage('');
         if (onListUpdated) {
-            onListUpdated(false); // Pass 'false' to indicate that no update was made
+            onListUpdated(false); //  'false' to indicate that no update was made
         }
     };
     

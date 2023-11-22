@@ -12,6 +12,8 @@ const checkEmailExists = "SELECT * FROM users WHERE email = $1";
 const checkNicknameExists = "SELECT * FROM users WHERE nickname = $1"; 
 const checkListExists = "SELECT * FROM hero_lists WHERE name = $1"; 
 
+const updatePassword = "UPDATE users SET password = $1 WHERE id = $2";
+
 
 const addReview = "INSERT INTO reviews (name, user_id, rating, comment, nickname) VALUES ($1, $2, $3, $4, $5)";
 
@@ -97,7 +99,8 @@ module.exports = {
     checkNicknameExists,
     getMyHeroLists,
     getOtherPublicHeroLists,
-    checkListExists
+    checkListExists,
+    updatePassword
 }
 
 //\c webtech to connect to the db 
