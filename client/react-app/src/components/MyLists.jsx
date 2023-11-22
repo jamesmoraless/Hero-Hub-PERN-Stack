@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './mylists.css'; // Create and import your CSS file for styling
 import EditLists from './EditLists';
+import DeleteList from './DeleteList';
 
 export default function MyLists() {
     const [editingList, setEditingList] = useState(null); // State to track which list is being edited
+    const [deletingList, setDeleteList] = useState(null); // State to track which list is being edited
     const [lists, setLists] = useState([]);
     const [expandedListName, setExpandedListName] = useState(null);
     const [heroDetails, setHeroDetails] = useState({});
@@ -11,6 +13,11 @@ export default function MyLists() {
     const handleEditClick = (list) => {
         setEditingList(list); // Set the current list to be edited
     };
+
+    const handleDeleteClick = (list) => {
+        setDeleteList(list); // Set the current list to be edited
+    };
+
     
 
     useEffect(() => {        
@@ -57,6 +64,16 @@ export default function MyLists() {
 
     return (
         <div className="my-lists-container">
+
+            {deletingList && (
+                        <DeleteList 
+                            listName={deletingList.name}
+                            onListUpdated={() => {
+                                setDeleteList(null); // Hide component after update
+                                fetchLists()// Refresh lists 
+                            }}
+                        />
+                    )}
             
             {editingList && (
                         <EditLists 
@@ -88,6 +105,8 @@ export default function MyLists() {
 
 
                     <button onClick={() => setEditingList(list)}>Edit List</button>
+                    
+                    <button onClick={() => setDeleteList(list)}>Delete</button>
 
                     <button onClick={() => fetchHeroDetails(list.name) && setExpandedListName(list.name === expandedListName ? null : list.name)}>
                         {expandedListName === list.name ? 'Hide Details' : 'Show Details'}
@@ -119,3 +138,7 @@ export default function MyLists() {
         </div>
     );
 }
+
+
+//Currently, I'm not showing the comments from reivews but I'm showing everything else 
+//So maybe, I'll add comments below every lsit by fetching comments

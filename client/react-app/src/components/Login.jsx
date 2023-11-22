@@ -58,6 +58,7 @@ export default function Login(props) {
                 <button type="submit">Login</button>        
             </form> 
             {message && <p className="login-message">{message}</p>}
+            <a href="/register">Register</a>
         </div>
   )
 }

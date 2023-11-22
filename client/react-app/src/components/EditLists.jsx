@@ -56,6 +56,13 @@ export default function EditLists({ listName, existingDescription, existingSuper
         }
     };
 
+    const handleCancel = () => {
+        setMessage('');
+        if (onListUpdated) {
+            onListUpdated(false); // Pass 'false' to indicate that no update was made
+        }
+    };
+
     return (
         <div className="edit-list-container">
             <h2>Edit List</h2>
@@ -78,6 +85,7 @@ export default function EditLists({ listName, existingDescription, existingSuper
                     <option value="true">Public</option>
                 </select>
                 <button type="submit">Done</button>
+                <button onClick={handleCancel}>Cancel</button>
             </form>
             {message && <p className="edit-list-message">{message}</p>}
         </div>

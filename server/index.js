@@ -134,6 +134,8 @@ app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero 
 
         let superheroes = JSON.parse(data);
         const formatString = (str) => str.trim().replace(/\s+/g, '').toLowerCase();
+        //Make sure to look at dicecode thing in references (import) 
+        //Register should just show a popup
 
 
         if (name) {
@@ -266,7 +268,14 @@ app.post('/api/secure/superhero-list', authenticate, async (req, res) => {//Crea
     const userID = req.user.id;
     //console.log(listName, superheroIds, description, visibility, userID);
     try {
+        //check if list name does not exists 
+        //const list = await pool.query(queries.checkListExists, [listName]); 
+        /* if (list.rows.length > 0){
+          return res.status(400).json({ message : 'List name is already in use. Try again.'});
+        } */
+        
         await pool.query(queries.addList, [listName, superheroIds, description, visibility, userID]);
+        
         res.status(201).send('List created successfully');
     } catch (error) {
         console.error('Error:', error.message);
@@ -454,7 +463,6 @@ app.get('/api/secure/public-hero-lists', authenticate, async (req, res) => {//GE
                 description: list.description
             };
         }).sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)) // Sort by last modified date
-          .slice(0, 10); // Limit to 10 lists
 
         res.json({ lists: processedLists });
 
@@ -463,6 +471,7 @@ app.get('/api/secure/public-hero-lists', authenticate, async (req, res) => {//GE
         res.status(500).send('Error fetching public hero lists');
     }
 });
+
 //UNUSED ----------------------------------------------------------------------------------------------------
 
 app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id; 

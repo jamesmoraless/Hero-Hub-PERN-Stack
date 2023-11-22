@@ -55,16 +55,14 @@ export default function CreateList(props) {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            props.refreshLists(); //refresh the list
-            
-            setMessage('List created successfully');
-            
+            props.refreshLists(); //refresh the list            
 
-            alert('List created successfully');//might wan to clear form fields once the list is created 
+            alert('List created succesfully');//might wan to clear form fields once the list is created 
+            //I have to work on this to say that list name is not unique. 
             clearResults();
         } catch (error) {
             console.error('Error creating list:', error);
-            alert('Error creating list');
+            alert('Please use a unique list name.');
         }
     };
 
@@ -101,3 +99,6 @@ export default function CreateList(props) {
         </div>
     );
 }
+
+
+//Must send a message saying list name is not unique 

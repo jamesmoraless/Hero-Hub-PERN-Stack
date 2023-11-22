@@ -48,3 +48,10 @@
     text-align: center;
     color: red;
 }
+
+a{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding-top: 10%;
+}

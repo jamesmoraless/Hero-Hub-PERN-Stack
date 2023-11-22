@@ -52,6 +52,12 @@ export default function ReviewList({ listName, onListUpdated }) {
         }
     };
 
+    const handleCancel = () => {
+        setMessage('');
+        if (onListUpdated) {
+            onListUpdated(false); // Pass 'false' to indicate that no update was made
+        }
+    };
 
     return (
         <div className="review-list-container">
@@ -71,6 +77,7 @@ export default function ReviewList({ listName, onListUpdated }) {
                     required
                 />
                 <button type="submit">Done</button>
+                <button onClick={handleCancel}>Cancel</button>
             </form>
             {message && <p className="rating-list-message">{message}</p>}
         </div>

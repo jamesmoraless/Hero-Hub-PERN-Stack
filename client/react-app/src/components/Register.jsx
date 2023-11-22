@@ -25,8 +25,7 @@ export default function Register(props) {
             //console.log('Data:', data);
 
             if (data.email){
-                setMessage('Registration succesful! Please login.');//send a hyperlink through 'login'
-                props.history.push('/login');
+                setMessage('Registration succesful! Please click on the link to verify.');//send a hyperlink through 'login' props.history.push('/login');
                 
             } else{
                 setMessage(data.message || 'An error occured during registration');
@@ -63,10 +62,15 @@ export default function Register(props) {
             onChange={(e) => setPassword(e.target.value)}
             required
             />
-            <button type="submit">Register</button>        
+            <button type="submit">Register</button>
             </form> 
             {message && <p className="register-message">{message}</p>}
+            
     </div>
     
   )
 }
+
+//on submission of the form, I want to check if the email is valid by doing email verification (2points on the table)
+//If the account is flagged as disabled, show a message asking to contact the site administrator and not allow logging in. {1 point}
+

@@ -1,0 +1,50 @@
+.delete-list-container {
+    background-color: #f9f9f9; 
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px; 
+}
+
+.delete-list-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.delete-list-form h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.delete-list-form textarea,
+.delete-list-form input,
+.delete-list-form select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.delete-list-form button {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.delete-list-form button:hover {
+    background-color: #45a049; 
+}
+
+.delete-list-message {
+    color: #d9534f; 
+    text-align: center;
+    margin-top: 15px;
+}
