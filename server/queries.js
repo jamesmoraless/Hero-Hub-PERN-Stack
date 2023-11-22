@@ -17,6 +17,8 @@ const updatePassword = "UPDATE users SET password = $1 WHERE id = $2";
 
 const addReview = "INSERT INTO reviews (name, user_id, rating, comment, nickname) VALUES ($1, $2, $3, $4, $5)";
 
+const verifyEmail = "UPDATE users SET isemailverified = true WHERE email = $1";
+
 const getPublicHeroLists = `
     SELECT 
         hl.id, 
@@ -100,7 +102,8 @@ module.exports = {
     getMyHeroLists,
     getOtherPublicHeroLists,
     checkListExists,
-    updatePassword
+    updatePassword,
+    verifyEmail
 }
 
 //\c webtech to connect to the db 

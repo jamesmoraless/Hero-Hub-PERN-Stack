@@ -7,6 +7,24 @@ export default function Login(props) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [verificationLink, setVerificationLink] = useState(''); // New state for verification link
+
+    const handleVerificationClick = async (e) => {
+        e.preventDefault();
+        alert('Email has been verified.');
+        try{
+            const response = await fetch(`http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        }catch(err){
+            console.log('An error occured while calling the API.');
+        }
+        setVerificationLink('');
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,16 +48,18 @@ export default function Login(props) {
                 props.history.push('/authenticated-dashboard');//must be the next page which is authenticated funcionality page    
                 
             } else{
-                setMessage(data.message || 'An error occured during login');
+                setMessage(data.message);
             }
         }catch(err){
             console.log('An error occured while calling the API.');
+            const link = `http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`;
+            setVerificationLink(link);
         }
     };
   
     return (
         <div className = "login-container">
-            <h2 className="login-title">Login Now :)</h2>
+            <h2 className="login-title">Login Now</h2>
             <form className="login-form" onSubmit={handleSubmit}>
                 <input 
                 type = "email"
@@ -60,6 +80,12 @@ export default function Login(props) {
             {message && <p className="login-message">{message}</p>}
             <a href="/passwordUpdate">Update Password</a>
             <a href="/register">Register</a>
+            {verificationLink && (
+                <div>
+                    <p>Please click the button below to verify your email:</p>
+                    <button onClick={handleVerificationClick}>Verify Email</button>
+                </div>
+            )}
         </div>
   )
 }

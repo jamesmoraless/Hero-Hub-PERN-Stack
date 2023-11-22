@@ -8,6 +8,30 @@ export default function Register(props) {
     const [password, setPassword] = useState('');
     const [nickname, setNickname] = useState('');
     const [message, setMessage] = useState('');
+    const [verificationLink, setVerificationLink] = useState(''); // New state for verification link
+    const [showLoginButton, setShowLoginButton] = useState(false);
+
+    const handleVerificationClick = async (e) => {
+        e.preventDefault();
+        alert('Email has been verified.');
+        try{
+            const response = await fetch(`http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+        }catch(err){
+            console.log('An error occured while calling the API.');
+        }
+
+        setShowLoginButton(true);
+    };
+
+    const redirectToLogin = () => {
+        props.history.push('/login');
+    };
 
 
     const handleSubmit = async (e) => {
@@ -25,7 +49,9 @@ export default function Register(props) {
             //console.log('Data:', data);
 
             if (data.email){
-                setMessage('Registration succesful! Please click on the link to verify.');//send a hyperlink through 'login' props.history.push('/login');
+                const link = `http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`;
+                setVerificationLink(link);
+                setMessage('Registration succesful! Please click on the button to verify.');//send a hyperlink through 'login' props.history.push('/login');
                 
             } else{
                 setMessage(data.message || 'An error occured during registration');
@@ -38,7 +64,7 @@ export default function Register(props) {
   return (
     
     <div className = "register-container">
-        <h2 className="register-title">Register Now :)</h2>
+        <h2 className="register-title">Register Now</h2>
         <form className="register-form" onSubmit={handleSubmit}>
             <input 
             type = "email"
@@ -65,6 +91,16 @@ export default function Register(props) {
             <button type="submit">Register</button>
             </form> 
             {message && <p className="register-message">{message}</p>}
+            {verificationLink && (
+                <div>
+                    <p>Please click the button below to verify your email:</p>
+                    <button onClick={handleVerificationClick}>Verify Email</button>
+                </div>
+            )}
+
+            {showLoginButton && (
+                <button onClick={redirectToLogin}>Go to Login</button>
+            )}
             
     </div>
     

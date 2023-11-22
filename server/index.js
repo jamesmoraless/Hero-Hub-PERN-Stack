@@ -80,8 +80,15 @@ app.post('/api/register', async (req, res) => {//Register New User
 }
 });
 
+app.get('/api/verify-email', async (req, res) => {
+    const { email } = req.query;
+    await pool.query(queries.verifyEmail, [email]);
+    res.send('Email verified successfully.');
+});
+
 app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
     try{
+        
         const {email, password} = req.body; 
       
         //check if email exists 
@@ -89,10 +96,14 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
         if (user.rows.length === 0){
           return res.status(400).json({ message : 'Invalid Email. Try again.'});
         }
-
         // Check if account is disabled
-        if (user.rows[0].isDisabled) {
+        if (user.rows[0].isdisabled) {
             return res.status(403).send('Account is disabled. Please contact the site administrator.');
+        }
+
+        // Check if email is verified
+        if (user.rows[0].isemailverified === false) {
+            return res.status(403).send('Email is not verified');
         }
       
         // Check if password matches
