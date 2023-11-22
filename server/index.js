@@ -436,6 +436,33 @@ app.get('/api/secure/my-hero-lists', authenticate, async (req, res) => {//GET: m
         res.status(500).send('Error fetching public hero lists');
     }
 });
+
+
+app.get('/api/secure/public-hero-lists', authenticate, async (req, res) => {//GET: public list info when opening the application other than my own; USED
+    const userId = req.user.id; // Extracted from the authenticated user
+    try {
+        const publicLists = await pool.query(queries.getOtherPublicHeroLists, [userId]); // Query to fetch other public lists
+        
+
+        const processedLists = publicLists.rows.map(list => {
+            return {
+                name: list.name,
+                creatorNickname: list.nickname, 
+                numberOfHeroes: list.superhero_ids.length,
+                averageRating: list.average_rating, 
+                lastModified: list.last_edited,
+                description: list.description
+            };
+        }).sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)) // Sort by last modified date
+          .slice(0, 10); // Limit to 10 lists
+
+        res.json({ lists: processedLists });
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error fetching public hero lists');
+    }
+});
 //UNUSED ----------------------------------------------------------------------------------------------------
 
 app.get('/api/superhero/:id', (req, res) => {//GET: superhero_info for a given id; 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { withRouter } from 'react-router-dom';
-import PublicLists from './PublicLists';
+import MyPublicLists from './MyPublicLists';
 import CreateList from './CreateList';
 import MyLists from './MyLists';
 
@@ -19,7 +18,7 @@ export default function AuthenticatedUserDashboard(props) {
                 <h3>View Your Lists</h3>
                 <MyLists key={listsKey}/>
                 <h3>View Community's Public Lists</h3>
-                <PublicLists refreshLists={refreshLists} />
+                <MyPublicLists refreshLists={refreshLists} />
             {/* Components for various functionalities */}
             
         </div>

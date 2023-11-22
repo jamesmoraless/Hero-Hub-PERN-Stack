@@ -13,7 +13,6 @@ const checkNicknameExists = "SELECT * FROM users WHERE nickname = $1";
 
 const addReview = "INSERT INTO reviews (name, user_id, rating, comment, nickname) VALUES ($1, $2, $3, $4, $5)";
 
-//const getPublicHeroLists = "SELECT * FROM hero_lists WHERE visibility = $1";
 const getPublicHeroLists = `
     SELECT 
         hl.id, 
@@ -59,7 +58,27 @@ const getMyHeroLists = `
     LIMIT 10;
 `;
 
-
+const getOtherPublicHeroLists = `
+    SELECT 
+        hl.id, 
+        hl.name, 
+        hl.last_edited, 
+        hl.description, 
+        hl.superhero_ids,
+        u.nickname, 
+        ROUND(AVG(r.rating)::numeric, 1) AS average_rating
+    FROM 
+        hero_lists hl
+        JOIN users u ON hl.user_id = u.id
+        LEFT JOIN reviews r ON hl.name = r.name
+    WHERE 
+        hl.user_id <> $1
+    GROUP BY 
+        hl.id, u.nickname
+    ORDER BY 
+        hl.last_edited DESC
+    LIMIT 10;
+`;
 
 
 module.exports = {
@@ -74,7 +93,8 @@ module.exports = {
     addReview,
     getPublicHeroLists,
     checkNicknameExists,
-    getMyHeroLists
+    getMyHeroLists,
+    getOtherPublicHeroLists
 }
 
 //\c webtech to connect to the db 
