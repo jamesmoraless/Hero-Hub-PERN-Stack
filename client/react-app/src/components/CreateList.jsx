@@ -51,16 +51,20 @@ export default function CreateList(props) {
                 },
                 body: JSON.stringify(listData),
             });
+            const data = await response.json();//make the response into JSON in order to bring it to front end 
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+            if (response.status === 201) {
+                alert('List created succesfully');//might wan to clear form fields once the list is created 
+                props.refreshLists(); //refresh the list            
+                clearResults();
+            }else if (response.status===400){
+            setMessage(data.message || 'An error occured during registration');
+            } else{
+                setMessage(data.message || 'An error occured during registration');
             }
-            props.refreshLists(); //refresh the list            
-
-            alert('List created succesfully');//might wan to clear form fields once the list is created 
+        }
             //I have to work on this to say that list name is not unique. 
-            clearResults();
-        } catch (error) {
+          catch (error) {
             console.error('Error creating list:', error);
             alert('Please use a unique list name.');
         }
@@ -101,4 +105,3 @@ export default function CreateList(props) {
 }
 
 
-//Must send a message saying list name is not unique 

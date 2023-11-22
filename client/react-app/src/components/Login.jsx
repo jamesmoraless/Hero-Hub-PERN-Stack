@@ -28,7 +28,7 @@ export default function Login(props) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        //Call the API to register the user
+        //Call the API to login the user
         try{
             const response = await fetch('http://localhost:5000/api/login', {
                 method: 'POST',
@@ -44,16 +44,22 @@ export default function Login(props) {
             if (data.token){
                 localStorage.setItem('jwtToken', data.token);
                 //console.log(localStorage.getItem('jwtToken'));
-                setMessage('Login succesful!');//send a hyperlink through 'login'
                 props.history.push('/authenticated-dashboard');//must be the next page which is authenticated funcionality page    
                 
             } else{
-                setMessage(data.message);
+                if(response.status === 403){
+                setMessage(data.message || 'An error occured during registration');
+            } else if(response.status === 401){
+                const link = `http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`;
+                    setVerificationLink(link);
+                    setMessage("Please verify your email. Click on the link we have provided.");
+            } else{
+                setMessage(data.message || 'An error occured during registration');
             }
-        }catch(err){
-            console.log('An error occured while calling the API.');
-            const link = `http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`;
-            setVerificationLink(link);
+            console.log(data);
+        }
+        }catch (err) {
+            console.log('An error occurred while calling the API:', err);    
         }
     };
   
@@ -80,12 +86,12 @@ export default function Login(props) {
             {message && <p className="login-message">{message}</p>}
             <a href="/passwordUpdate">Update Password</a>
             <a href="/register">Register</a>
-            {verificationLink && (
+             {verificationLink && (
                 <div>
-                    <p>Please click the button below to verify your email:</p>
+                    <p>You must verify your email before logging in:</p>
                     <button onClick={handleVerificationClick}>Verify Email</button>
                 </div>
-            )}
+            )} 
         </div>
   )
 }

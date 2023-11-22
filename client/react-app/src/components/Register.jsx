@@ -107,6 +107,4 @@ export default function Register(props) {
   )
 }
 
-//on submission of the form, I want to check if the email is valid by doing email verification (2points on the table)
-//If the account is flagged as disabled, show a message asking to contact the site administrator and not allow logging in. {1 point}
 

@@ -19,7 +19,7 @@ export default function PasswordUpdate(props) {
                 body: JSON.stringify({ email, password }),
             });
             const data = await response.json();
-            console.log('Data:', data);
+            //console.log('Data:', data);
             if (data.token) {
                 localStorage.setItem('jwtToken', data.token);
                 setMessage('Credentials confirmed. You can now update your password.');
@@ -54,7 +54,7 @@ export default function PasswordUpdate(props) {
                 setMessage(data.message || 'Error updating password');
             } */
             alert('Password updated successfully.');
-            props.history.push('/authenticated-dashboard');
+            props.history.push('/login');
         } catch (err) {
             console.log('Error:', err);
         }
@@ -98,4 +98,3 @@ export default function PasswordUpdate(props) {
     );
 }
 
-//I have the same issue here where it says unexpected token becuas of the await data.json() just like in CreateList.jsx

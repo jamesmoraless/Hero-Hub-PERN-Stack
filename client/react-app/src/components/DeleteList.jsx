@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './deletelist.css'; // Create and import your CSS file for styling
+import './deletelist.css'; 
 
 
 export default function DeleteList({ listName, onListUpdated }) {

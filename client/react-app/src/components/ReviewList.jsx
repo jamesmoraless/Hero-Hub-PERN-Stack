@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './reviewlist.css'; // Create and import your CSS file for styling
+import './reviewlist.css'; 
 
 
 export default function ReviewList({ listName, onListUpdated }) {

@@ -11,7 +11,7 @@ export default function PublicLists() {
     useEffect(() => {
         const fetchLists = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/open/public-hero-lists'); // Update with your actual API endpoint
+                const response = await fetch('http://localhost:5000/api/open/public-hero-lists'); 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }

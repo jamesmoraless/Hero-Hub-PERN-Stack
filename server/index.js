@@ -8,6 +8,7 @@ const queries = require('./queries');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { isEmail } = require('validator');
+const stringSimilarity = require('string-similarity');
 require('dotenv').config();
 //const {nanoid} = require('nanoid/non-secure');
 
@@ -98,12 +99,17 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
         }
         // Check if account is disabled
         if (user.rows[0].isdisabled) {
-            return res.status(403).send('Account is disabled. Please contact the site administrator.');
+            return res.status(403).json({ message: 'Account is disabled. Please contact site admin.' });
         }
 
         // Check if email is verified
         if (user.rows[0].isemailverified === false) {
-            return res.status(403).send('Email is not verified');
+            return res.status(401).json({ message: 'Email is not verified. Please verify..' });
+        }
+
+        // Check if isadmin
+        if (user.rows[0].isadmin === true) {
+            return;//not sure what to do with this yet
         }
       
         // Check if password matches
@@ -117,6 +123,7 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
           user: {
           id: user.rows[0].id,
           nickname: user.rows[0].nickname,
+          isadmin: user.rows[0].isadmin,
           },
           };
           jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1h' }, (err, token) => {
@@ -164,10 +171,8 @@ app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero 
         }
 
         let superheroes = JSON.parse(data);
-        const formatString = (str) => str.trim().replace(/\s+/g, '').toLowerCase();
-        //Make sure to look at dicecode thing in references (import) 
-        //Register should just show a popup
 
+        const formatString = (str) => str.trim().replace(/\s+/g, '').toLowerCase();
 
         if (name) {
             const formattedName = formatString(name);
@@ -183,6 +188,23 @@ app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero 
             const formattedPublisher = formatString(publisher);
             superheroes = superheroes.filter(hero => hero.Publisher && formatString(hero.Publisher).startsWith(formattedPublisher));
         }
+
+        
+        /* // Function to determine if a string matches the search term using Dice coefficient
+         const isMatch = (searchTerm, target) => {
+            searchTerm = formatString(searchTerm);
+            target = formatString(target);
+            return stringSimilarity.compareTwoStrings(searchTerm, target) >= 0.8; // Set your threshold here
+        }; 
+        if (name) {
+            superheroes = superheroes.filter(hero => hero.name && isMatch(name, hero.name));
+        }
+        if (race) {
+            superheroes = superheroes.filter(hero => hero.Race && isMatch(race, hero.Race));
+        }
+        if (publisher) {
+            superheroes = superheroes.filter(hero => hero.Publisher && isMatch(publisher, hero.Publisher));
+        }  */ 
 
         // read superhero powers
         fs.readFile('superhero_powers.json', 'utf8', (err, superheroPowersData) => {
@@ -300,14 +322,14 @@ app.post('/api/secure/superhero-list', authenticate, async (req, res) => {//Crea
     //console.log(listName, superheroIds, description, visibility, userID);
     try {
         //check if list name does not exists 
-        //const list = await pool.query(queries.checkListExists, [listName]); 
-        /* if (list.rows.length > 0){
-          return res.status(400).json({ message : 'List name is already in use. Try again.'});
-        } */
-        
+        const list = await pool.query(queries.checkListExists, [listName]); 
+         if (list.rows.length !== 0){
+            return res.status(400).json({ message : 'List name is already in use. Try again.'});
+        }
         await pool.query(queries.addList, [listName, superheroIds, description, visibility, userID]);
+        res.status(201).json({ message : 'List name is already in use. Try again.'});
+
         
-        res.status(201).send('List created successfully');
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).send('Error creating list');
@@ -501,6 +523,22 @@ app.get('/api/secure/public-hero-lists', authenticate, async (req, res) => {//GE
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).send('Error fetching public hero lists');
+    }
+});
+
+//ADMIN ENDPOINTS ----------------------------------------------------------------------------------------------------
+
+app.get('/api/isAdmin', async (req, res) => {//USED to populate all hero lists (Additional get request)
+    const isAdmin = req.user.isAdmin; // Extracted from the authenticated user
+    try {
+        if (isAdmin) {
+            res.json({ message: 'I am an admin' });
+        } else {
+            throw new Error('You are not an admin');
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send('Error fetching');
     }
 });
 

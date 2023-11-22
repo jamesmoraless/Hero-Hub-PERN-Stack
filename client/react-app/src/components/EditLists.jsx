@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './editlists.css'; // Create and import your CSS file for styling
+import './editlists.css'; 
 
 
 export default function EditLists({ listName, existingDescription, existingSuperheroIds, existingVisibility, onListUpdated }) {
