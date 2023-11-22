@@ -107,10 +107,10 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
             return res.status(401).json({ message: 'Email is not verified. Please verify..' });
         }
 
-        // Check if isadmin
+        /* // Check if isadmin
         if (user.rows[0].isadmin === true) {
             return;//not sure what to do with this yet
-        }
+        } */
       
         // Check if password matches
         const isMatch = await bcrypt.compare(password, user.rows[0].password);
@@ -128,7 +128,7 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
           };
           jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1h' }, (err, token) => {
             if (err) throw err;
-            res.json({ token });
+            res.json({ token, isAdmin:user.rows[0].isadmin });
           });} catch (err) {
           console.error(err.message);
           res.status(500).send('Server error.');
@@ -528,19 +528,7 @@ app.get('/api/secure/public-hero-lists', authenticate, async (req, res) => {//GE
 
 //ADMIN ENDPOINTS ----------------------------------------------------------------------------------------------------
 
-app.get('/api/isAdmin', async (req, res) => {//USED to populate all hero lists (Additional get request)
-    const isAdmin = req.user.isAdmin; // Extracted from the authenticated user
-    try {
-        if (isAdmin) {
-            res.json({ message: 'I am an admin' });
-        } else {
-            throw new Error('You are not an admin');
-        }
-    } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send('Error fetching');
-    }
-});
+
 
 //UNUSED ----------------------------------------------------------------------------------------------------
 

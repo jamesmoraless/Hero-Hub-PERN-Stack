@@ -43,10 +43,15 @@ export default function Login(props) {
             // To save the token:
             if (data.token){
                 localStorage.setItem('jwtToken', data.token);
-                //console.log(localStorage.getItem('jwtToken'));
-                props.history.push('/authenticated-dashboard');//must be the next page which is authenticated funcionality page    
+                 if (data.isAdmin){
+                    props.history.push('/admin-dashboard');//if the user is an admin redirecct them to their dashboard
+                } else if (!data.isAdmin){
+                    props.history.push('/authenticated-dashboard');//if a user isnt an admin, redirect them to the other dashboard
+                }
+                //if(data.is === 'Email has been verified.'){
                 
-            } else{
+            } 
+            else{
                 if(response.status === 403){
                 setMessage(data.message || 'An error occured during registration');
             } else if(response.status === 401){
