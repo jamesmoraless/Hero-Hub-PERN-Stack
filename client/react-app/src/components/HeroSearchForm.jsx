@@ -114,7 +114,7 @@ export default function HeroSearchForm() {
                 {expandedHeroId === hero.id ? 'Hide Details' : 'Show Details'}
             </button>
 
-            <button onClick={() => window.open(`https://duckduckgo.com/?q=${encodeURIComponent(hero.name)}`, '_blank')}>
+            <button onClick={() => window.open(`https://duckduckgo.com/?q=${encodeURIComponent(hero.name)}+${encodeURIComponent(hero.Publisher)}`, '_blank')}>
                 Search on DDG
             </button>
 
