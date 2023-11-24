@@ -99,7 +99,7 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
         }
         // Check if account is disabled
         if (user.rows[0].isdisabled) {
-            return res.status(403).json({ message: 'Account is disabled. Please contact site admin.' });
+            return res.status(403).json({ message: 'Account is disabled. Please contact site admin at: jmorale6@uwo.ca.' });
         }
 
         // Check if email is verified
@@ -570,21 +570,21 @@ app.put('/api/admin/users/:email/disable', authenticate, async (req, res) => {//
     }
 });
 
-app.put('/api/admin/users/:email/isadmin', authenticate, async (req, res) => {//Make a user into an admin
+app.put('/api/admin/users/:email/toggle-admin', authenticate, async (req, res) => {//Make a user into an admin
     const { email } = req.params;
-    let isadmin = req.user.isadmin
+    console.log(req.user.isadmin);
     
     //const { isAdmin } = req.body; // Boolean value indicating whether to disable or enable the account
 
     try {
         const query = `
             UPDATE users 
-            SET isadmin = $1 
-            WHERE email = $2 
+            SET isadmin = NOT isadmin 
+            WHERE email = $1 
             RETURNING email, isadmin;`;
 
-        const result = await pool.query(query, [!isadmin, email]);
-        isadmin =!isadmin;//I need this endpoint to alter the isadmin in the token payload 
+        const result = await pool.query(query, [email]);
+        console.log(req.user.isadmin);
 
         if (result.rows.length === 0) {//check if the user exists (probably wont be touched)
             return res.status(404).send('User not found.');

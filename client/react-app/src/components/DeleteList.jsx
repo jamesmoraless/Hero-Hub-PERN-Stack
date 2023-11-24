@@ -57,8 +57,8 @@ export default function DeleteList({ listName, onListUpdated }) {
             <form onSubmit={handleSubmit} className="delete-list-form">
                 <h3>{listName}</h3>
                 
-                <button type="submit">Yes</button>
-                <button onClick={handleCancel}>No</button>
+                <button type="submit">Continue</button>
+                <button onClick={handleCancel}>Cancel</button>
             </form>
             {message && <p className="delete-list-message">{message}</p>}
         </div>

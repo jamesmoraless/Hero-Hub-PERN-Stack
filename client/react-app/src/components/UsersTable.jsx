@@ -24,7 +24,8 @@ export default function UsersTable() {
                 const data = await response.json();
                 const formattedUsers = data.map(user => ({
                     ...user,
-                    isDisabled: user.isdisabled // Set isDisabled based on isdisabled status
+                    isDisabled: user.isdisabled, // Set isDisabled based on isdisabled status
+                    isAdmin: user.isadmin // Set isAdmin based on isAdmin status
                 }));
                 setUsers(formattedUsers);
             } catch (error) {
@@ -57,37 +58,36 @@ export default function UsersTable() {
     
             // Update the state to reflect the change
             setUsers(users.map(user => 
-                user.email === email ? { ...user, isDisabled: isCurrentlyDisabled } : user
+                user.email === email ? { ...user, isDisabled: isCurrentlyDisabled, isAdmin: user.isadmin } : user
             ));
         } catch (error) {
             console.error('Error toggling user account:', error);
         }
     };
 
-    const toggleUserAdmin = async (email, isCurrentlyAdmin) => {
+    const toggleAdminStatus = async (email) => {
         try {
             const token = localStorage.getItem('jwtToken');
-            //console.log(`Toggling account for ${email}: ${isCurrentlyDisabled}`);
-            const response = await fetch(`http://localhost:5000/api/admin/users/${email}/isadmin`, {
+            const response = await fetch(`http://localhost:5000/api/admin/users/${email}/toggle-admin`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'x-auth-token': token
-                },
-                body: JSON.stringify({ admin: isCurrentlyAdmin }) // Toggle the status
+                }
             });
-            console.log("Toggling changes for: email, isCurrentlyAdmin", email, isCurrentlyAdmin);
     
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
     
-            // Update the state to reflect the change
+            // Update the users state to reflect the change
+            const updatedAdminStatus = await response.json();
+            //console.log(response.json());
             setUsers(users.map(user => 
-                user.email === email ? { ...user, isAdmin: isCurrentlyAdmin } : user
+                user.email === email ? { ...user, isAdmin: updatedAdminStatus.isadmin } : user
             ));
         } catch (error) {
-            console.error('Error toggling user account:', error);
+            console.error('Error toggling admin status:', error);
         }
     };
     
@@ -115,8 +115,8 @@ export default function UsersTable() {
                                 <button onClick={() => toggleUserAccount(user.email, !user.isDisabled)}>
                                     {user.isDisabled ? 'Enable' : 'Disable'}
                                 </button>
-                                <button onClick={() => toggleUserAdmin(user.email, !user.isAdmin)}>
-                                    {user.isAdmin ? 'Remove Admin' : 'Add Admin'}
+                                <button onClick={() => toggleAdminStatus(user.email)}>
+                                    {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
                                 </button>
                             </td>
                         </tr>

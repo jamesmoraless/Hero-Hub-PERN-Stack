@@ -11,7 +11,7 @@ const addUser = "INSERT INTO users (email, password, nickname) VALUES ($1, $2, $
 const checkEmailExists = "SELECT * FROM users WHERE email = $1"; 
 const checkNicknameExists = "SELECT * FROM users WHERE nickname = $1"; 
 const checkListExists = "SELECT * FROM hero_lists WHERE name = $1"; 
-const getUsers = `SELECT email, nickname, isdisabled FROM users;`;
+const getUsers = `SELECT email, nickname, isdisabled, isadmin FROM users WHERE nickname <> 'admin'`;
 
 
 const updatePassword = "UPDATE users SET password = $1 WHERE id = $2";
@@ -19,7 +19,6 @@ const updatePassword = "UPDATE users SET password = $1 WHERE id = $2";
 
 const addReview = "INSERT INTO reviews (name, user_id, rating, comment, nickname) VALUES ($1, $2, $3, $4, $5)";
 const getReviews = "SELECT * FROM reviews";
-//const getMyReviews = "SELECT * FROM reviews WHERE user_id = $1";
 
 
 const verifyEmail = "UPDATE users SET isemailverified = true WHERE email = $1";
@@ -61,7 +60,7 @@ const getMyHeroLists = `
         JOIN users u ON hl.user_id = u.id
         LEFT JOIN reviews r ON hl.name = r.name
     WHERE 
-        hl.user_id = $1
+        hl.user_id = $1 
     GROUP BY 
         hl.id, u.nickname
     ORDER BY 
@@ -90,26 +89,7 @@ const getOtherPublicHeroLists = `
         hl.last_edited DESC
 `;
 
- /* const getMyReviews = `
-     SELECT 
-        r.rating, 
-        r.comment, 
-        r.created_at, 
-        r.hidden, 
-        r.nickname, 
-        hl.name, 
-        u.email 
-    FROM 
-        reviews r 
-    JOIN 
-        hero_lists hl ON r.name = hl.name 
-    JOIN 
-        users u ON hl.user_id = u.id 
-    WHERE 
-        hl.user_id = $1;
-`; */
-
-const getMyReviews = "SELECT * FROM reviews WHERE name = $1";
+const getMyReviews = "SELECT * FROM reviews WHERE name = $1 AND hidden = false";
 
 module.exports = {
     addList,
@@ -140,7 +120,8 @@ module.exports = {
     password VARCHAR(255) NOT NULL,
     nickname VARCHAR(255) UNIQUE NOT NULL,
     isEmailVerified BOOLEAN DEFAULT FALSE,
-    isDisabled BOOLEAN DEFAULT FALSE
+    isDisabled BOOLEAN DEFAULT FALSE,
+    isAdmin BOOLEAN DEFAULT FALSE
 );
  */
 
@@ -152,7 +133,8 @@ module.exports = {
     user_id INTEGER REFERENCES users(id),
     nickname VARCHAR(255) REFERENCES users(nickname),
     name VARCHAR(255) REFERENCES hero_lists(name),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    hidden BOOLEAN DEFAULT FALSE,
 ); 
 */
 
