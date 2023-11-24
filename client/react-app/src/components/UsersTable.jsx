@@ -63,6 +63,33 @@ export default function UsersTable() {
             console.error('Error toggling user account:', error);
         }
     };
+
+    const toggleUserAdmin = async (email, isCurrentlyAdmin) => {
+        try {
+            const token = localStorage.getItem('jwtToken');
+            //console.log(`Toggling account for ${email}: ${isCurrentlyDisabled}`);
+            const response = await fetch(`http://localhost:5000/api/admin/users/${email}/isadmin`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify({ admin: isCurrentlyAdmin }) // Toggle the status
+            });
+            console.log("Toggling changes for: email, isCurrentlyAdmin", email, isCurrentlyAdmin);
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            // Update the state to reflect the change
+            setUsers(users.map(user => 
+                user.email === email ? { ...user, isAdmin: isCurrentlyAdmin } : user
+            ));
+        } catch (error) {
+            console.error('Error toggling user account:', error);
+        }
+    };
     
 
     if (loading) {
@@ -87,6 +114,9 @@ export default function UsersTable() {
                             <td>
                                 <button onClick={() => toggleUserAccount(user.email, !user.isDisabled)}>
                                     {user.isDisabled ? 'Enable' : 'Disable'}
+                                </button>
+                                <button onClick={() => toggleUserAdmin(user.email, !user.isAdmin)}>
+                                    {user.isAdmin ? 'Remove Admin' : 'Add Admin'}
                                 </button>
                             </td>
                         </tr>

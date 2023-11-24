@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './mylists.css'; // Create and import your CSS file for styling
 import EditLists from './EditLists';
 import DeleteList from './DeleteList';
+import CommentsList from './CommentsList';
 
 export default function MyLists() {
     const [editingList, setEditingList] = useState(null); // State to track which list is being edited
@@ -65,6 +66,29 @@ export default function MyLists() {
     return (
         <div className="my-lists-container">
 
+            {editingList && (
+                <EditLists 
+                    listName={editingList.name}
+                    existingDescription={editingList.description}
+                    existingSuperheroIds={editingList.superheroIds}
+                    existingVisibility={editingList.visibility}
+                    onListUpdated={() => {
+                        setEditingList(null); // Hide component after update
+                        fetchLists()// Refresh lists 
+                    }}
+                />
+            )}
+
+            {deletingList && (
+                <DeleteList 
+                    listName={deletingList.name}
+                    onListUpdated={() => {
+                        setDeleteList(null); // Hide component after update
+                        fetchLists()// Refresh lists 
+                    }}
+                />
+            )}
+
             {lists.map(list => (
                 <div key={list.id} className="my-list">
                     <h3>{list.name}</h3>
@@ -106,30 +130,9 @@ export default function MyLists() {
                                     <p>Powers: {hero.powers.join(', ')}</p>
                                 </div>
                             ))}
+                            <CommentsList listName={list.name} />
                         </div>
-                    )}
-
-                    {editingList && (
-                        <EditLists 
-                            listName={editingList.name}
-                            existingDescription={editingList.description}
-                            existingSuperheroIds={editingList.superheroIds}
-                            existingVisibility={editingList.visibility}
-                            onListUpdated={() => {
-                                setEditingList(null); // Hide component after update
-                                fetchLists()// Refresh lists 
-                            }}
-                        />
-                    )}
-
-                    {deletingList && (
-                        <DeleteList 
-                            listName={deletingList.name}
-                            onListUpdated={() => {
-                                setDeleteList(null); // Hide component after update
-                                fetchLists()// Refresh lists 
-                            }}
-                        />
+                        
                     )}
 
                 </div>

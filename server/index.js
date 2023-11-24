@@ -107,10 +107,6 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
             return res.status(401).json({ message: 'Email is not verified. Please verify..' });
         }
 
-        /* // Check if isadmin
-        if (user.rows[0].isadmin === true) {
-            return;//not sure what to do with this yet
-        } */
       
         // Check if password matches
         const isMatch = await bcrypt.compare(password, user.rows[0].password);
@@ -526,10 +522,11 @@ app.get('/api/secure/public-hero-lists', authenticate, async (req, res) => {//GE
     }
 });
 
-app.get('/api/secure/reviews', authenticate, async (req, res) => {//GET: reviews other than my own
-    const userID = req.user.id; // Extracted from the authenticated user
+app.get('/api/secure/reviews/:listName', authenticate, async (req, res) => {//GET: reviews other than my own and associated to my lists; USED
+    //const userID = req.user.id; // Extracted from the authenticated user
+    const listName = req.params.listName;
     try {
-        const result = await pool.query(queries.getMyReviews, [userID]); // Query to fetch my reviews
+        const result = await pool.query(queries.getMyReviews, [listName]); // Query to fetch my reviews
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
@@ -539,7 +536,7 @@ app.get('/api/secure/reviews', authenticate, async (req, res) => {//GET: reviews
 
 //ADMIN ENDPOINTS ----------------------------------------------------------------------------------------------------
 
-app.get('/api/admin/users', authenticate, async (req, res) => {
+app.get('/api/admin/users', authenticate, async (req, res) => {//get all users 
     try {
         const result = await pool.query(queries.getUsers);
         res.json(result.rows);
@@ -549,7 +546,7 @@ app.get('/api/admin/users', authenticate, async (req, res) => {
     }
 });
 
-app.put('/api/admin/users/:email/disable', authenticate, async (req, res) => {
+app.put('/api/admin/users/:email/disable', authenticate, async (req, res) => {//disable user accounts 
     const { email } = req.params;
     const { disable } = req.body; // Boolean value indicating whether to disable or enable the account
 
@@ -573,8 +570,35 @@ app.put('/api/admin/users/:email/disable', authenticate, async (req, res) => {
     }
 });
 
+app.put('/api/admin/users/:email/isadmin', authenticate, async (req, res) => {//Make a user into an admin
+    const { email } = req.params;
+    let isadmin = req.user.isadmin
+    
+    //const { isAdmin } = req.body; // Boolean value indicating whether to disable or enable the account
 
-app.get('/api/admin/reviews', authenticate, async (req, res) => {
+    try {
+        const query = `
+            UPDATE users 
+            SET isadmin = $1 
+            WHERE email = $2 
+            RETURNING email, isadmin;`;
+
+        const result = await pool.query(query, [!isadmin, email]);
+        isadmin =!isadmin;//I need this endpoint to alter the isadmin in the token payload 
+
+        if (result.rows.length === 0) {//check if the user exists (probably wont be touched)
+            return res.status(404).send('User not found.');
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error.');
+    }
+});
+
+
+app.get('/api/admin/reviews', authenticate, async (req, res) => {//get all reviews 
     try {
         const result = await pool.query(queries.getReviews);
         res.json(result.rows);
@@ -584,7 +608,7 @@ app.get('/api/admin/reviews', authenticate, async (req, res) => {
     }
 });
 
-app.put('/api/admin/reviews/:id/hidden', authenticate, async (req, res) => {
+app.put('/api/admin/reviews/:id/hidden', authenticate, async (req, res) => {//hide a review 
     const { id } = req.params;
     const { hidden } = req.body; // Boolean value indicating whether to disable or enable the account
 

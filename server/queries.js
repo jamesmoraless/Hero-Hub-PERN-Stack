@@ -19,7 +19,7 @@ const updatePassword = "UPDATE users SET password = $1 WHERE id = $2";
 
 const addReview = "INSERT INTO reviews (name, user_id, rating, comment, nickname) VALUES ($1, $2, $3, $4, $5)";
 const getReviews = "SELECT * FROM reviews";
-const getMyReviews = "SELECT * FROM reviews WHERE user_id = $1";
+//const getMyReviews = "SELECT * FROM reviews WHERE user_id = $1";
 
 
 const verifyEmail = "UPDATE users SET isemailverified = true WHERE email = $1";
@@ -66,7 +66,7 @@ const getMyHeroLists = `
         hl.id, u.nickname
     ORDER BY 
         hl.last_edited DESC
-    LIMIT 10;
+    LIMIT 20;
 `;
 
 const getOtherPublicHeroLists = `
@@ -88,27 +88,28 @@ const getOtherPublicHeroLists = `
         hl.id, u.nickname
     ORDER BY 
         hl.last_edited DESC
-    LIMIT 10;
 `;
 
-/* const getMyReviews = `
-    SELECT 
+ /* const getMyReviews = `
+     SELECT 
         r.rating, 
         r.comment, 
         r.created_at, 
         r.hidden, 
-        hl.name AS hero_list_name, 
-        u.nickname
+        r.nickname, 
+        hl.name, 
+        u.email 
     FROM 
-        reviews r
+        reviews r 
     JOIN 
-        hero_lists hl ON r.name = hl.name
+        hero_lists hl ON r.name = hl.name 
     JOIN 
-        users u ON hl.user_id = u.id
+        users u ON hl.user_id = u.id 
     WHERE 
-        hl.user_id = 2;
-`;
- *///I need to change this so that I get reviews associated to my lists not all reviews
+        hl.user_id = $1;
+`; */
+
+const getMyReviews = "SELECT * FROM reviews WHERE name = $1";
 
 module.exports = {
     addList,
