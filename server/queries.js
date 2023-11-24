@@ -11,11 +11,16 @@ const addUser = "INSERT INTO users (email, password, nickname) VALUES ($1, $2, $
 const checkEmailExists = "SELECT * FROM users WHERE email = $1"; 
 const checkNicknameExists = "SELECT * FROM users WHERE nickname = $1"; 
 const checkListExists = "SELECT * FROM hero_lists WHERE name = $1"; 
+const getUsers = `SELECT email, nickname, isdisabled FROM users;`;
+
 
 const updatePassword = "UPDATE users SET password = $1 WHERE id = $2";
 
 
 const addReview = "INSERT INTO reviews (name, user_id, rating, comment, nickname) VALUES ($1, $2, $3, $4, $5)";
+const getReviews = "SELECT * FROM reviews";
+const getMyReviews = "SELECT * FROM reviews WHERE user_id = $1";
+
 
 const verifyEmail = "UPDATE users SET isemailverified = true WHERE email = $1";
 
@@ -86,6 +91,24 @@ const getOtherPublicHeroLists = `
     LIMIT 10;
 `;
 
+/* const getMyReviews = `
+    SELECT 
+        r.rating, 
+        r.comment, 
+        r.created_at, 
+        r.hidden, 
+        hl.name AS hero_list_name, 
+        u.nickname
+    FROM 
+        reviews r
+    JOIN 
+        hero_lists hl ON r.name = hl.name
+    JOIN 
+        users u ON hl.user_id = u.id
+    WHERE 
+        hl.user_id = 2;
+`;
+ *///I need to change this so that I get reviews associated to my lists not all reviews
 
 module.exports = {
     addList,
@@ -103,7 +126,10 @@ module.exports = {
     getOtherPublicHeroLists,
     checkListExists,
     updatePassword,
-    verifyEmail
+    verifyEmail,
+    getUsers,
+    getReviews,
+    getMyReviews
 }
 
 //\c webtech to connect to the db 

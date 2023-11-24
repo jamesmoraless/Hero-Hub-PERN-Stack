@@ -526,8 +526,84 @@ app.get('/api/secure/public-hero-lists', authenticate, async (req, res) => {//GE
     }
 });
 
+app.get('/api/secure/reviews', authenticate, async (req, res) => {//GET: reviews other than my own
+    const userID = req.user.id; // Extracted from the authenticated user
+    try {
+        const result = await pool.query(queries.getMyReviews, [userID]); // Query to fetch my reviews
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error.');
+    }
+});
+
 //ADMIN ENDPOINTS ----------------------------------------------------------------------------------------------------
 
+app.get('/api/admin/users', authenticate, async (req, res) => {
+    try {
+        const result = await pool.query(queries.getUsers);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error.');
+    }
+});
+
+app.put('/api/admin/users/:email/disable', authenticate, async (req, res) => {
+    const { email } = req.params;
+    const { disable } = req.body; // Boolean value indicating whether to disable or enable the account
+
+    try {
+        const query = `
+            UPDATE users 
+            SET isdisabled = $1 
+            WHERE email = $2 
+            RETURNING email, isdisabled;`;//changed caps
+
+        const result = await pool.query(query, [disable, email]);
+
+        if (result.rows.length === 0) {//check if the user exists (probably wont be touched)
+            return res.status(404).send('User not found.');
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error.');
+    }
+});
+
+
+app.get('/api/admin/reviews', authenticate, async (req, res) => {
+    try {
+        const result = await pool.query(queries.getReviews);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error.');
+    }
+});
+
+app.put('/api/admin/reviews/:id/hidden', authenticate, async (req, res) => {
+    const { id } = req.params;
+    const { hidden } = req.body; // Boolean value indicating whether to disable or enable the account
+
+    try {
+        const query = `
+            UPDATE reviews 
+            SET hidden = $1 
+            WHERE id = $2 
+            RETURNING id, hidden;`;
+
+        const result = await pool.query(query, [hidden, id]);
+        console.log();
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error.');
+    }
+});
 
 
 //UNUSED ----------------------------------------------------------------------------------------------------
