@@ -572,9 +572,6 @@ app.put('/api/admin/users/:email/disable', authenticate, async (req, res) => {//
 
 app.put('/api/admin/users/:email/toggle-admin', authenticate, async (req, res) => {//Make a user into an admin
     const { email } = req.params;
-    console.log(req.user.isadmin);
-    
-    //const { isAdmin } = req.body; // Boolean value indicating whether to disable or enable the account
 
     try {
         const query = `
@@ -584,7 +581,6 @@ app.put('/api/admin/users/:email/toggle-admin', authenticate, async (req, res) =
             RETURNING email, isadmin;`;
 
         const result = await pool.query(query, [email]);
-        console.log(req.user.isadmin);
 
         if (result.rows.length === 0) {//check if the user exists (probably wont be touched)
             return res.status(404).send('User not found.');
@@ -620,7 +616,6 @@ app.put('/api/admin/reviews/:id/hidden', authenticate, async (req, res) => {//hi
             RETURNING id, hidden;`;
 
         const result = await pool.query(query, [hidden, id]);
-        console.log();
 
         res.json(result.rows[0]);
     } catch (err) {
