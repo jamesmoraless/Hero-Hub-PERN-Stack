@@ -19,11 +19,17 @@ const PORT = 5000;
 app.use(bodyParser.json());
 
 // Serving static files from the client directory
-app.use(express.static(path.join(__dirname, '../client')));
+app.use(express.static(path.join(__dirname, '../client/react-app/build')));
 
-app.use(cors({
-    origin: 'http://localhost:3000'//must update when the front-end is deployed
+/* app.use(cors({
+    origin: 'http://localhost:5000'//must update when the front-end is deployed
 }));
+ */
+
+// All other GET requests not handled before will return the React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/react-app/build', 'index.html'));
+});
 
 
   //authenticate the user (used in all methods)
@@ -39,10 +45,6 @@ app.use(cors({
       res.status(401).json({ message: 'Invalid token.'});
     }
   };
-
-app.get('/', async (req, res) => {//should get this when opening the react app 
-    res.send("Hey there");
-});
 
 
 app.post('/api/register', async (req, res) => {//Register New User
@@ -72,13 +74,11 @@ app.post('/api/register', async (req, res) => {//Register New User
 
     //add user to db IF email does not exist 
     const newUser = await pool.query(queries.addUser, [email, hashedPassword, nickname]);
-    res.status(201).json(newUser.rows[0]);//I want this to then send you to a new page that welcomes you 
-    //and then allows you to have extra functionalities  
-    
-}catch (err){
+        res.status(201).json(newUser.rows[0]);//I want this to then send you to a new page that welcomes you
+    }catch (err){
       console.error(err.message);
       res.status(500).send('Server error.');
-}
+    }
 });
 
 app.get('/api/verify-email', async (req, res) => {
@@ -120,6 +120,7 @@ app.post('/api/login', async (req, res) => {//Login Existing User and return JWT
           id: user.rows[0].id,
           nickname: user.rows[0].nickname,
           isadmin: user.rows[0].isadmin,
+          email: user.rows[0].email,
           },
           };
           jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1h' }, (err, token) => {

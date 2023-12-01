@@ -8,6 +8,8 @@ export default function CreateList(props) {
     const [visibility, setVisibility] = useState('false');
     const [message, setMessage] = useState('');
 
+    const apiUrl = process.env.REACT_APP_API_URL;
+
     const clearResults = () => {
         setListName('');
         setDescription('');
@@ -43,7 +45,7 @@ export default function CreateList(props) {
 
         try {
             const token = localStorage.getItem('jwtToken'); // retrieve token from local storage
-            const response = await fetch('http://localhost:5000/api/secure/superhero-list', {
+            const response = await fetch(`/api/secure/superhero-list`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

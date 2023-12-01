@@ -4,6 +4,7 @@ import './deletelist.css';
 
 export default function DeleteList({ listName, onListUpdated }) {
     const [message, setMessage] = useState('');
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     function sanitize(string) {
         const map = {

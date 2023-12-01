@@ -5,12 +5,14 @@ export default function ReviewsTable({ listName }) {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const apiUrl = process.env.REACT_APP_API_URL;
+
     useEffect(() => {
         const fetchReviews = async () => {
             setLoading(true);
             try {
                 const token = localStorage.getItem('jwtToken');
-                const response = await fetch(`http://localhost:5000/api/secure/reviews/${listName}`, {
+                const response = await fetch(`/api/secure/reviews/${listName}`, {
                     headers: {
                         'x-auth-token': token
                     }

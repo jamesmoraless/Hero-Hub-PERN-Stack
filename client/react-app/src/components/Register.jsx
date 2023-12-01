@@ -10,12 +10,13 @@ export default function Register(props) {
     const [message, setMessage] = useState('');
     const [verificationLink, setVerificationLink] = useState(''); // New state for verification link
     const [showLoginButton, setShowLoginButton] = useState(false);
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const handleVerificationClick = async (e) => {
         e.preventDefault();
         alert('Email has been verified.');
         try{
-            const response = await fetch(`http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`, {
+            const response = await fetch(`/api/verify-email?email=${encodeURIComponent(email)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -38,7 +39,7 @@ export default function Register(props) {
         e.preventDefault();
         //Call the API to register the user
         try{
-            const response = await fetch('http://localhost:5000/api/register', {
+            const response = await fetch(`/api/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,10 +47,10 @@ export default function Register(props) {
                 body: JSON.stringify({ email, password, nickname}),
             });
             const data = await response.json();
-            //console.log('Data:', data);
+            console.log('Data:', data);
 
             if (data.email){
-                const link = `http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`;
+                const link = `/api/verify-email`;
                 setVerificationLink(link);
                 setMessage('Registration succesful! Please click on the button to verify.');//send a hyperlink through 'login' props.history.push('/login');
                 

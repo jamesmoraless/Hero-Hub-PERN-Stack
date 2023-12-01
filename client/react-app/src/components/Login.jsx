@@ -37,9 +37,8 @@ export default function Login(props) {
                 },
                 body: JSON.stringify({ email, password}),//must stringify both body fields
             });
-            //console.log(response);
             const data = await response.json();//make the response into JSON in order to bring it to front end 
-            console.log('Data:', data);
+            //console.log('Data:', data);
             // To save the token:
             if (data.token){
                 localStorage.setItem('jwtToken', data.token);
