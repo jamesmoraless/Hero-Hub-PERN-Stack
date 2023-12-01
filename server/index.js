@@ -13,7 +13,7 @@ require('dotenv').config();
 //const {nanoid} = require('nanoid/non-secure');
 
 const app = express();
-const PORT = 5000;
+const PORT = 3000;
 
 // Use body-parser middleware to handle JSON requests
 app.use(bodyParser.json());
@@ -21,10 +21,10 @@ app.use(bodyParser.json());
 // Serving static files from the client directory
 app.use(express.static(path.join(__dirname, '../client/react-app/build')));
 
-/* app.use(cors({
-    origin: 'http://localhost:5000'//must update when the front-end is deployed
+ app.use(cors({
+    origin: 'http://localhost:3000'//must update when the front-end is deployed
 }));
- */
+ 
 
 // All other GET requests not handled before will return the React app
 app.get('*', (req, res) => {
