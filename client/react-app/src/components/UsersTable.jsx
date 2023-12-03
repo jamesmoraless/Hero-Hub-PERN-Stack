@@ -11,7 +11,7 @@ export default function UsersTable() {
             setLoading(true);
             try {
                 const token = localStorage.getItem('jwtToken');
-                const response = await fetch('http://localhost:5000/api/admin/users', {
+                const response = await fetch('/api/admin/users', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export default function UsersTable() {
         try {
             const token = localStorage.getItem('jwtToken');
             //console.log(`Toggling account for ${email}: ${isCurrentlyDisabled}`);
-            const response = await fetch(`http://localhost:5000/api/admin/users/${email}/disable`, {
+            const response = await fetch(`/api/admin/users/${email}/disable`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ export default function UsersTable() {
     const toggleAdminStatus = async (email) => {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`http://localhost:5000/api/admin/users/${email}/toggle-admin`, {
+            const response = await fetch(`/api/admin/users/${email}/toggle-admin`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

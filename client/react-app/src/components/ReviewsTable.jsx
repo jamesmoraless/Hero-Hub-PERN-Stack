@@ -10,7 +10,7 @@ export default function ReviewsTable() {
             setLoading(true);
             try {
                 const token = localStorage.getItem('jwtToken');
-                const response = await fetch('http://localhost:5000/api/admin/reviews', {
+                const response = await fetch('/api/admin/reviews', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export default function ReviewsTable() {
     const toggleReviewVisibility = async (id, isCurrentlyHidden) => {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`http://localhost:5000/api/admin/reviews/${id}/hidden`, {
+            const response = await fetch(`/api/admin/reviews/${id}/hidden`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

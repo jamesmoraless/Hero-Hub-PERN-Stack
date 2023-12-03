@@ -24,7 +24,7 @@ export default function DeleteList({ listName, onListUpdated }) {
 
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`http://localhost:5000/api/secure/superhero-list/${listName}`, {
+            const response = await fetch(`/api/secure/superhero-list/${listName}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

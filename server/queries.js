@@ -125,6 +125,8 @@ module.exports = {
 );
  */
 
+//Adding admin:
+//
 
 /* CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
@@ -134,7 +136,7 @@ module.exports = {
     nickname VARCHAR(255) REFERENCES users(nickname),
     name VARCHAR(255) REFERENCES hero_lists(name),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    hidden BOOLEAN DEFAULT FALSE,
+    hidden BOOLEAN DEFAULT FALSE
 ); 
 */
 

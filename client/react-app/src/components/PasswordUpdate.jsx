@@ -11,7 +11,7 @@ export default function PasswordUpdate(props) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/login', {
+            const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export default function PasswordUpdate(props) {
         e.preventDefault();
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch('http://localhost:5000/api/update-password', {
+            const response = await fetch('/api/update-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

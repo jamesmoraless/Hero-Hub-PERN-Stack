@@ -11,7 +11,7 @@ export default function PublicLists() {
     useEffect(() => {
         const fetchLists = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/open/public-hero-lists'); 
+                const response = await fetch('/api/open/public-hero-lists'); 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -27,7 +27,7 @@ export default function PublicLists() {
 
     const fetchHeroDetails = async (listName) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/open/public-hero-lists/${listName}`);
+            const response = await fetch(`/api/open/public-hero-lists/${listName}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

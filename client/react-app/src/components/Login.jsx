@@ -13,7 +13,7 @@ export default function Login(props) {
         e.preventDefault();
         alert('Email has been verified.');
         try{
-            const response = await fetch(`http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`, {
+            const response = await fetch(`/api/verify-email?email=${encodeURIComponent(email)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export default function Login(props) {
         e.preventDefault();
         //Call the API to login the user
         try{
-            const response = await fetch('http://localhost:5000/api/login', {
+            const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',//conetent to be received is json object
@@ -54,7 +54,7 @@ export default function Login(props) {
                 if(response.status === 403){
                 setMessage(data.message || 'An error occured during registration');
             } else if(response.status === 401){
-                const link = `http://localhost:5000/api/verify-email?email=${encodeURIComponent(email)}`;
+                const link = `/api/verify-email?email=${encodeURIComponent(email)}`;
                     setVerificationLink(link);
                     setMessage("Please verify your email. Click on the link we have provided.");
             } else{

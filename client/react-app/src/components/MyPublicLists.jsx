@@ -23,7 +23,7 @@ export default function PublicLists() {
 
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch('http://localhost:5000/api/secure/public-hero-lists', {
+            const response = await fetch('/api/secure/public-hero-lists', {
                 headers: {
                     'x-auth-token': token // Include the JWT token
                 }
@@ -40,7 +40,7 @@ export default function PublicLists() {
 
     const fetchHeroDetails = async (listName) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/open/public-hero-lists/${listName}`);
+            const response = await fetch(`/api/open/public-hero-lists/${listName}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

@@ -31,7 +31,7 @@ export default function ReviewList({ listName, onListUpdated }) {
             
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`http://localhost:5000/api/secure/reviews`, {
+            const response = await fetch(`/api/secure/reviews`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

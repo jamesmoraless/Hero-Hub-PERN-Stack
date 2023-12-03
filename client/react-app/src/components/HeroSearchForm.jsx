@@ -46,7 +46,7 @@ export default function HeroSearchForm() {
         });
     
         try {
-            const response = await fetch(`http://localhost:5000/api/open/search2.0?${queryParameters}`);//call the API {Will have to change this by removing before the /api when running npm run build and serving react app ass static files}
+            const response = await fetch(`/api/open/search2.0?${queryParameters}`);//call the API {Will have to change this by removing before the /api when running npm run build and serving react app ass static files}
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
