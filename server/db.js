@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: 'postgres://postgres:Williamandoraul1$@localhost:5433/webtech' });
 
 
 module.exports = pool;
