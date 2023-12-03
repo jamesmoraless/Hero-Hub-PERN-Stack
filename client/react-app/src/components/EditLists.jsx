@@ -34,8 +34,9 @@ export default function EditLists({ listName, existingDescription, existingSuper
             };
     
         try {
+            const formattedListName = listName.trim().replace(/\s+/g, '');
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`/api/secure/superhero-list/${listName}`, {
+            const response = await fetch(`/api/secure/superhero-list/${formattedListName}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
