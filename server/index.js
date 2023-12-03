@@ -18,18 +18,7 @@ const PORT = 3000;
 // Use body-parser middleware to handle JSON requests
 app.use(bodyParser.json());
 
-// Serving static files from the client directory
-app.use(express.static(path.join(__dirname, '../client/react-app/build')));
 
- app.use(cors({
-    origin: 'http://localhost:3000'//must update when the front-end is deployed
-}));
- 
-
-// All other GET requests not handled before will return the React app
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/react-app/build', 'index.html'));
-});
 
 
   //authenticate the user (used in all methods)
@@ -760,6 +749,19 @@ app.get('/api/all-superhero-lists', async (req, res) => {//USED to populate all 
         console.error('Error:', error.message);
         res.status(500).send('Error fetching lists');
     }
+});
+
+// Serving static files from the client directory
+app.use(express.static(path.join(__dirname, '../client/react-app/build')));
+
+ app.use(cors({
+    origin: 'http://localhost:3000'//must update when the front-end is deployed
+}));
+ 
+
+// All other GET requests not handled before will return the React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/react-app/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
