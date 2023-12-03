@@ -82,7 +82,7 @@ const getOtherPublicHeroLists = `
         JOIN users u ON hl.user_id = u.id
         LEFT JOIN reviews r ON hl.name = r.name
     WHERE 
-        hl.user_id <> $1
+        hl.user_id <> $1 AND hl.visibility = true
     GROUP BY 
         hl.id, u.nickname
     ORDER BY 
