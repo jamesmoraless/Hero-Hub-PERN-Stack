@@ -8,7 +8,8 @@ const queries = require('./queries');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { isEmail } = require('validator');
-const stringSimilarity = require('string-similarity');
+const stringSimilarity = require('string-similarity-js').stringSimilarity;
+
 require('dotenv').config();
 //const {nanoid} = require('nanoid/non-secure');
 
@@ -147,7 +148,6 @@ app.post('/api/update-password', authenticate, async (req, res) => {
 });
 
 
-
 app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero id's by name, race, publisher, power; USED
     const { name, race, publisher, power, n } = req.query;
 
@@ -158,7 +158,7 @@ app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero 
 
         let superheroes = JSON.parse(data);
 
-        const formatString = (str) => str.trim().replace(/\s+/g, '').toLowerCase();
+        /*  const formatString = (str) => str.trim().replace(/\s+/g, '').toLowerCase();
 
         if (name) {
             const formattedName = formatString(name);
@@ -173,24 +173,23 @@ app.get('/api/open/search2.0', (req, res) => { //GET: n number of matching hero 
         if (publisher) {
             const formattedPublisher = formatString(publisher);
             superheroes = superheroes.filter(hero => hero.Publisher && formatString(hero.Publisher).startsWith(formattedPublisher));
-        }
+        }  */
 
         
-        /* // Function to determine if a string matches the search term using Dice coefficient
-         const isMatch = (searchTerm, target) => {
-            searchTerm = formatString(searchTerm);
-            target = formatString(target);
-            return stringSimilarity.compareTwoStrings(searchTerm, target) >= 0.8; // Set your threshold here
+        // Function to determine if a string matches the search term using Dice coefficient
+        const formatString = (str) => str.trim().replace(/\s+/g, '').toLowerCase();         
+        const isMatch = (searchTerm, target) => {
+            return stringSimilarity(searchTerm, target, 1) >= 0.7; // Set your threshold here
         }; 
         if (name) {
-            superheroes = superheroes.filter(hero => hero.name && isMatch(name, hero.name));
+            superheroes = superheroes.filter(hero => hero.name && isMatch(formatString(name), formatString(hero.name)));
         }
         if (race) {
-            superheroes = superheroes.filter(hero => hero.Race && isMatch(race, hero.Race));
+            superheroes = superheroes.filter(hero => hero.Race && isMatch(formatString(race), formatString(hero.Race)));
         }
         if (publisher) {
-            superheroes = superheroes.filter(hero => hero.Publisher && isMatch(publisher, hero.Publisher));
-        }  */ 
+            superheroes = superheroes.filter(hero => hero.Publisher && isMatch(formatString(publisher), formatString(hero.Publisher)));
+        }   
 
         // read superhero powers
         fs.readFile('superhero_powers.json', 'utf8', (err, superheroPowersData) => {
