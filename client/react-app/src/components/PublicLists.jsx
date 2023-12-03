@@ -27,7 +27,7 @@ export default function PublicLists() {
 
     const fetchHeroDetails = async (listName) => {
         try {
-            const response = await fetch(`/api/open/public-hero-lists/${listName}`);
+            const response = await fetch(`/api/open/public-hero-lists/${encodeURIComponent(listName)}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

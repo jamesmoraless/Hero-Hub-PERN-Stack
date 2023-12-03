@@ -12,7 +12,7 @@ export default function ReviewsTable({ listName }) {
             setLoading(true);
             try {
                 const token = localStorage.getItem('jwtToken');
-                const response = await fetch(`/api/secure/reviews/${listName}`, {
+                const response = await fetch(`/api/secure/reviews/${encodeURIComponent(listName)}`, {
                     headers: {
                         'x-auth-token': token
                     }

@@ -48,7 +48,7 @@ export default function MyLists() {
     const fetchHeroDetails = async (listName) => {
         try {
             const token = localStorage.getItem('jwtToken');
-            const response = await fetch(`/api/secure/my-hero-lists/${listName}`, {
+            const response = await fetch(`/api/secure/my-hero-lists/${encodeURIComponent(listName)}`, {
                 headers: {
                     'x-auth-token': token // Include the JWT token
                 }
